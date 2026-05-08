@@ -1,52 +1,52 @@
-# Using agent-skills with Gemini CLI
+# 在 Gemini CLI 中使用 agent-skills
 
-## Setup
+## 配置
 
-### Option 1: Install as Skills (Recommended)
+### 方式一：作为 Skill 安装（推荐）
 
-Gemini CLI has a native skills system that auto-discovers `SKILL.md` files in `.gemini/skills/` or `.agents/skills/` directories. Each skill activates on demand when it matches your task.
+Gemini CLI 拥有原生 skill 系统，会自动发现 `.gemini/skills/` 或 `.agents/skills/` 目录中的 `SKILL.md` 文件。每个 skill 在匹配你的任务时按需激活。
 
-**Install from the repo:**
+**从仓库安装：**
 
 ```bash
 gemini skills install https://github.com/addyosmani/agent-skills.git --path skills
 ```
 
-**Or install from a local clone:**
+**或从本地克隆安装：**
 
 ```bash
 git clone https://github.com/addyosmani/agent-skills.git
 gemini skills install /path/to/agent-skills/skills/
 ```
 
-**Install for a specific workspace only:**
+**仅为特定工作区安装：**
 
 ```bash
 gemini skills install /path/to/agent-skills/skills/ --scope workspace
 ```
 
-Skills installed at workspace scope go into `.gemini/skills/` (or `.agents/skills/`). User-level skills go into `~/.gemini/skills/`.
+以工作区范围安装的 skill 会放入 `.gemini/skills/`（或 `.agents/skills/`）。用户级别的 skill 放入 `~/.gemini/skills/`。
 
-Once installed, verify with:
+安装后，通过以下命令验证：
 
 ```
 /skills list
 ```
 
-Gemini CLI injects skill names and descriptions into the prompt automatically. When it recognizes a matching task, it asks permission to activate the skill before loading its full instructions.
+Gemini CLI 会自动将 skill 名称和描述注入到提示中。当它识别到匹配的任务时，会在加载完整指令前请求许可来激活该 skill。
 
-### Option 2: GEMINI.md (Persistent Context)
+### 方式二：GEMINI.md（持久上下文）
 
-For skills you want always loaded as persistent project context (rather than on-demand activation), add them to your project's `GEMINI.md`:
+对于希望始终作为持久项目上下文加载的 skill（而非按需激活），将它们添加到项目的 `GEMINI.md` 中：
 
 ```bash
-# Create GEMINI.md with core skills as persistent context
+# 创建 GEMINI.md，包含核心 skill 作为持久上下文
 cat /path/to/agent-skills/skills/incremental-implementation/SKILL.md > GEMINI.md
 echo -e "\n---\n" >> GEMINI.md
 cat /path/to/agent-skills/skills/code-review-and-quality/SKILL.md >> GEMINI.md
 ```
 
-You can also modularize by importing from separate files:
+你也可以通过从单独的文件导入来模块化：
 
 ```markdown
 # Project Instructions
@@ -55,77 +55,77 @@ You can also modularize by importing from separate files:
 @skills/incremental-implementation/SKILL.md
 ```
 
-Use `/memory show` to verify loaded context, and `/memory reload` to refresh after changes.
+使用 `/memory show` 验证已加载的上下文，使用 `/memory reload` 在变更后刷新。
 
-> **Skills vs GEMINI.md:** Skills are on-demand expertise that activate only when relevant, keeping your context window clean. GEMINI.md provides persistent context loaded for every prompt. Use skills for phase-specific workflows and GEMINI.md for always-on project conventions.
+> **Skill 与 GEMINI.md 的区别：** Skill 是按需的专业能力，仅在相关时激活，保持上下文窗口整洁。GEMINI.md 提供对每个提示都加载的持久上下文。将阶段专用工作流用 skill，将始终需要的项目约定用 GEMINI.md。
 
-## Recommended Configuration
+## 推荐配置
 
-### Always-On (GEMINI.md)
+### 始终开启（GEMINI.md）
 
-Add these as persistent context for every session:
+将这些作为持久上下文添加到每个会话：
 
-- `incremental-implementation` — Build in small verifiable slices
-- `code-review-and-quality` — Five-axis review
+- `incremental-implementation` — 以小的可验证切片构建
+- `code-review-and-quality` — 五维度审查
 
-### On-Demand (Skills)
+### 按需使用（Skill）
 
-Install these as skills so they activate only when relevant:
+将这些作为 skill 安装，使其仅在相关时激活：
 
-- `test-driven-development` — Activates when implementing logic or fixing bugs
-- `spec-driven-development` — Activates when starting a new project or feature
-- `frontend-ui-engineering` — Activates when building UI
-- `security-and-hardening` — Activates during security reviews
-- `performance-optimization` — Activates during performance work
+- `test-driven-development` — 在实现逻辑或修复 bug 时激活
+- `spec-driven-development` — 在启动新项目或功能时激活
+- `frontend-ui-engineering` — 在构建 UI 时激活
+- `security-and-hardening` — 在安全审查时激活
+- `performance-optimization` — 在性能优化工作时激活
 
-## Advanced Configuration
+## 高级配置
 
-### MCP Integration
+### MCP 集成
 
-Many skills in this pack leverage [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) tools to interact with the environment. For example:
+本技能包中的许多 skill 利用 [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) 工具与环境交互。例如：
 
-- `browser-testing-with-devtools` uses the `chrome-devtools` MCP extension.
-- `performance-optimization` can benefit from performance-related MCP tools.
+- `browser-testing-with-devtools` 使用 `chrome-devtools` MCP 扩展。
+- `performance-optimization` 可以从性能相关的 MCP 工具中受益。
 
-To enable these, ensure you have the relevant MCP extensions installed in your Gemini CLI configuration (`~/.gemini/config.json`).
+要启用这些功能，请确保在 Gemini CLI 配置（`~/.gemini/config.json`）中安装了相关的 MCP 扩展。
 
-### Session Hooks
+### 会话钩子
 
-Gemini CLI supports session lifecycle hooks. You can use these to automatically inject context or run validation scripts at the start of a session.
+Gemini CLI 支持会话生命周期钩子。你可以使用这些钩子在会话开始时自动注入上下文或运行验证脚本。
 
-To replicate the `agent-skills` experience from other tools, you can configure a `SessionStart` hook that reminds you of the available skills or loads a meta-skill.
+要复制其他工具中的 `agent-skills` 体验，你可以配置 `SessionStart` 钩子来提醒你可用的 skill 或加载 meta-skill。
 
-### Explicit Context Loading
+### 显式上下文加载
 
-You can explicitly load any skill into your current session by referencing it with the `@` symbol in your prompt:
+你可以通过在提示中使用 `@` 符号引用来显式加载任何 skill 到当前会话：
 
 ```markdown
 Use the @skills/test-driven-development/SKILL.md skill to implement this fix.
 ```
 
-This is useful when you want to ensure a specific workflow is followed without waiting for auto-discovery.
+当你想确保遵循特定工作流而不等待自动发现时，这很有用。
 
-## Slash Commands
+## 斜杠命令
 
-The repo ships 7 slash commands under `.gemini/commands/` that map to the development lifecycle. Gemini CLI auto-discovers them when you run from the project root.
+仓库在 `.gemini/commands/` 下提供了 7 个斜杠命令，映射到开发生命周期。当从项目根目录运行时，Gemini CLI 会自动发现它们。
 
-| Command | What it does |
-|---------|--------------|
-| `/spec` | Write a structured spec before writing code |
-| `/planning` | Break work into small, verifiable tasks |
-| `/build` | Implement the next task incrementally |
-| `/test` | Run TDD workflow — red, green, refactor |
-| `/review` | Five-axis code review |
-| `/code-simplify` | Reduce complexity without changing behavior |
-| `/ship` | Pre-launch checklist via parallel persona fan-out |
+| 命令 | 功能 |
+|------|------|
+| `/spec` | 在编写代码前编写结构化规格说明 |
+| `/planning` | 将工作分解为小的、可验证的任务 |
+| `/build` | 增量实现下一个任务 |
+| `/test` | 运行 TDD 工作流 — 红、绿、重构 |
+| `/review` | 五维度代码审查 |
+| `/code-simplify` | 在不改变行为的情况下降低复杂度 |
+| `/ship` | 通过并行角色分派执行上线前检查清单 |
 
-Each command invokes the corresponding skill automatically — no manual skill loading required.
+每个命令会自动调用相应的 skill —— 无需手动加载 skill。
 
-> **Note:** Use `/planning` instead of `/plan` — `/plan` conflicts with a Gemini CLI internal command name.
+> **注意：** 使用 `/planning` 而不是 `/plan` —— `/plan` 与 Gemini CLI 内部命令名冲突。
 
-## Usage Tips
+## 使用提示
 
-1. **Prefer skills over GEMINI.md** — Skills activate on demand and keep your context window focused. Only put skills in GEMINI.md if you want them always loaded.
-2. **Skill descriptions matter** — Each SKILL.md has a `description` field in its frontmatter that tells agents when to activate it. The descriptions in this repo are optimized for auto-discovery across all supported tools (Claude Code, Gemini CLI, etc.) by clearly stating both *what* the skill does and *when* it should be triggered.
-3. **Use agents for review** — Copy `agents/code-reviewer.md` content when requesting structured code reviews.
-4. **Combine with references** — Reference checklists from `references/` when working on specific quality areas like testing or performance.
+1. **优先使用 skill 而非 GEMINI.md** — Skill 按需激活并保持上下文窗口聚焦。只有希望始终加载的 skill 才放入 GEMINI.md。
+2. **Skill 描述很重要** — 每个 SKILL.md 在其前置信息中有一个 `description` 字段，告诉代理何时激活它。本仓库中的描述针对所有支持工具（Claude Code、Gemini CLI 等）的自动发现进行了优化，清楚地说明了 skill *做什么*以及*何时*应该触发。
+3. **使用 agent 进行审查** — 在请求结构化代码审查时，复制 `agents/code-reviewer.md` 内容。
+4. **结合参考资料使用** — 在处理特定质量领域（如测试或性能）时，引用 `references/` 中的检查清单。

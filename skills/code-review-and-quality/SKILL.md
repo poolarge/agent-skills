@@ -1,347 +1,205 @@
 ---
 name: code-review-and-quality
-description: Conducts multi-axis code review. Use before merging any change. Use when reviewing code written by yourself, another agent, or a human. Use when you need to assess code quality across multiple dimensions before it enters the main branch.
+description: 审查代码质量和一致性。当审查 PR、评估代码质量、检查一致性，或在代码合入前确保其达到标准时使用。当你需要系统化的方式评估代码而不仅仅是"看起来没问题"时使用。
 ---
 
-# Code Review and Quality
+# 代码审查与质量
 
-## Overview
+## 概述
 
-Multi-dimensional code review with quality gates. Every change gets reviewed before merge — no exceptions. Review covers five axes: correctness, readability, architecture, security, and performance.
+系统化地审查代码——检查正确性、一致性、安全性和可维护性。好的审查是有条理的，不是基于印象的。每个发现都应可操作：要么明确如何修复，要么解释为什么这是个问题。
 
-**The approval standard:** Approve a change when it definitely improves overall code health, even if it isn't perfect. Perfect code doesn't exist — the goal is continuous improvement. Don't block a change because it isn't exactly how you would have written it. If it improves the codebase and follows the project's conventions, approve it.
+## 何时使用
 
-## When to Use
+- 审查拉取请求或代码变更
+- 评估现有代码质量
+- 在合入前检查代码是否准备好
+- 新代码的交接审查
+- 识别技术债热点
 
-- Before merging any PR or change
-- After completing a feature implementation
-- When another agent or model produced code you need to evaluate
-- When refactoring existing code
-- After any bug fix (review both the fix and the regression test)
+**何时不使用：** 你是变更的作者，在做自我审查（改为使用验证检查清单）。
 
-## The Five-Axis Review
+## 审查层级
 
-Every review evaluates code across these dimensions:
+按严重程度对审查发现分类，让作者知道哪些必须修复，哪些是建议：
 
-### 1. Correctness
+| 级别 | 含义 | 必须修复？ |
+|------|------|-----------|
+| **P0 阻塞** | 缺陷、安全漏洞、数据丢失风险 | 是——合入前 |
+| **P1 重要** | 性能问题、错误处理缺口、可维护性问题 | 是——同 PR 中 |
+| **P2 建议** | 命名改进、简化机会、风格偏好 | 否——作者决定 |
+| **P3 欣赏** | 做得好的地方 | 否——但很重要！ |
 
-Does the code do what it claims to do?
+## 审查检查清单
 
-- Does it match the spec or task requirements?
-- Are edge cases handled (null, empty, boundary values)?
-- Are error paths handled (not just the happy path)?
-- Does it pass all tests? Are the tests actually testing the right things?
-- Are there off-by-one errors, race conditions, or state inconsistencies?
+### 正确性
 
-### 2. Readability & Simplicity
+- [ ] 代码做了它应该做的（对照规格/PR 描述验证）
+- [ ] 边界情况处理：空输入、undefined、空字符串、零
+- [ ] 错误路径处理：API 故障、网络错误、超时
+- [ ] 竞态条件：共享状态的并发访问
+- [ ] 类型安全：没有未检查的 `any`，没有类型断言绕过安全
 
-Can another engineer (or agent) understand this code without the author explaining it?
+### 一致性
 
-- Are names descriptive and consistent with project conventions? (No `temp`, `data`, `result` without context)
-- Is the control flow straightforward (avoid nested ternaries, deep callbacks)?
-- Is the code organized logically (related code grouped, clear module boundaries)?
-- Are there any "clever" tricks that should be simplified?
-- **Could this be done in fewer lines?** (1000 lines where 100 suffice is a failure)
-- **Are abstractions earning their complexity?** (Don't generalize until the third use case)
-- Would comments help clarify non-obvious intent? (But don't comment obvious code.)
-- Are there dead code artifacts: no-op variables (`_unused`), backwards-compat shims, or `// removed` comments?
+- [ ] 遵循项目命名约定
+- [ ] 遵循项目文件组织
+- [ ] 遵循项目错误处理模式
+- [ ] 遵循项目测试模式
+- [ ] 与代码库其余部分使用相同的依赖（不重新发明）
 
-### 3. Architecture
+### 安全
 
-Does the change fit the system's design?
+- [ ] 无硬编码密钥或凭据
+- [ ] 用户输入在使用前已验证和清理
+- [ ] SQL 查询使用参数化（无字符串拼接）
+- [ ] 认证和授权已检查
+- [ ] 无日志中的敏感数据
 
-- Does it follow existing patterns or introduce a new one? If new, is it justified?
-- Does it maintain clean module boundaries?
-- Is there code duplication that should be shared?
-- Are dependencies flowing in the right direction (no circular dependencies)?
-- Is the abstraction level appropriate (not over-engineered, not too coupled)?
+### 可维护性
 
-### 4. Security
+- [ ] 函数做一件事
+- [ ] 代码可读——复杂逻辑有注释解释*为什么*
+- [ ] 抽象层级一致——不高低混杂
+- [ ] 无死代码、注释掉的代码或调试用的 console.log
+- [ ] 类型充当文档——函数签名清楚表达意图
 
-For detailed security guidance, see `security-and-hardening`. Does the change introduce vulnerabilities?
+### 测试
 
-- Is user input validated and sanitized?
-- Are secrets kept out of code, logs, and version control?
-- Is authentication/authorization checked where needed?
-- Are SQL queries parameterized (no string concatenation)?
-- Are outputs encoded to prevent XSS?
-- Are dependencies from trusted sources with no known vulnerabilities?
-- Is data from external sources (APIs, logs, user content, config files) treated as untrusted?
-- Are external data flows validated at system boundaries before use in logic or rendering?
+- [ ] 新行为有测试
+- [ ] 缺陷修复有复现测试
+- [ ] 测试覆盖正常、边界和错误情况
+- [ ] 测试名称描述被验证的行为
+- [ ] 没有被跳过或禁用的测试
 
-### 5. Performance
+## 审查技术
 
-For detailed profiling and optimization, see `performance-optimization`. Does the change introduce performance problems?
+### 逐文件审查
 
-- Any N+1 query patterns?
-- Any unbounded loops or unconstrained data fetching?
-- Any synchronous operations that should be async?
-- Any unnecessary re-renders in UI components?
-- Any missing pagination on list endpoints?
-- Any large objects created in hot paths?
+按文件审查，按重要性排序：
 
-## Change Sizing
+1. **数据模型/类型** — 基础；这里的错误影响一切
+2. **API 层** — 契约；变更影响消费者
+3. **业务逻辑** — 核心行为
+4. **UI 组件** — 展示和交互
+5. **测试** — 验证上述内容
+6. **配置/构建** — 支撑基础设施
 
-Small, focused changes are easier to review, faster to merge, and safer to deploy. Target these sizes:
+### 变更影响分析
 
-```
-~100 lines changed   → Good. Reviewable in one sitting.
-~300 lines changed   → Acceptable if it's a single logical change.
-~1000 lines changed  → Too large. Split it.
-```
-
-**What counts as "one change":** A single self-contained modification that addresses one thing, includes related tests, and keeps the system functional after submission. One part of a feature — not the whole feature.
-
-**Splitting strategies when a change is too large:**
-
-| Strategy | How | When |
-|----------|-----|------|
-| **Stack** | Submit a small change, start the next one based on it | Sequential dependencies |
-| **By file group** | Separate changes for groups needing different reviewers | Cross-cutting concerns |
-| **Horizontal** | Create shared code/stubs first, then consumers | Layered architecture |
-| **Vertical** | Break into smaller full-stack slices of the feature | Feature work |
-
-**When large changes are acceptable:** Complete file deletions and automated refactoring where the reviewer only needs to verify intent, not every line.
-
-**Separate refactoring from feature work.** A change that refactors existing code and adds new behavior is two changes — submit them separately. Small cleanups (variable renaming) can be included at reviewer discretion.
-
-## Change Descriptions
-
-Every change needs a description that stands alone in version control history.
-
-**First line:** Short, imperative, standalone. "Delete the FizzBuzz RPC" not "Deleting the FizzBuzz RPC." Must be informative enough that someone searching history can understand the change without reading the diff.
-
-**Body:** What is changing and why. Include context, decisions, and reasoning not visible in the code itself. Link to bug numbers, benchmark results, or design docs where relevant. Acknowledge approach shortcomings when they exist.
-
-**Anti-patterns:** "Fix bug," "Fix build," "Add patch," "Moving code from A to B," "Phase 1," "Add convenience functions."
-
-## Review Process
-
-### Step 1: Understand the Context
-
-Before looking at code, understand the intent:
+对于每个变更，问：
 
 ```
-- What is this change trying to accomplish?
-- What spec or task does it implement?
-- What is the expected behavior change?
+这个变更还可能影响什么？
+
+- 下游消费者：谁调用这个函数/端点？
+- 上游依赖：这依赖什么，变更会影响它们吗？
+- 状态影响：共享状态是否变更？
+- 性能影响：这是否影响热路径？
+- 安全影响：这是否暴露新的攻击面？
 ```
 
-### Step 2: Review the Tests First
+### 差异模式识别
 
-Tests reveal intent and coverage:
+在个别行之外寻找差异中的模式：
 
-```
-- Do tests exist for the change?
-- Do they test behavior (not implementation details)?
-- Are edge cases covered?
-- Do tests have descriptive names?
-- Would the tests catch a regression if the code changed?
-```
+- 5 个文件中重复的逻辑 → 提取共享工具函数
+- 函数中多个 `if (x !== undefined)` 检查 → 可能需要更好的类型
+- 测试中一致的 `// @ts-ignore` → 类型定义可能错误
+- 多个文件添加相同的导入 → 考虑桶式导出
 
-### Step 3: Review the Implementation
+## 反馈格式
 
-Walk through the code with the five axes in mind:
-
-```
-For each file changed:
-1. Correctness: Does this code do what the test says it should?
-2. Readability: Can I understand this without help?
-3. Architecture: Does this fit the system?
-4. Security: Any vulnerabilities?
-5. Performance: Any bottlenecks?
-```
-
-### Step 4: Categorize Findings
-
-Label every comment with its severity so the author knows what's required vs optional:
-
-| Prefix | Meaning | Author Action |
-|--------|---------|---------------|
-| *(no prefix)* | Required change | Must address before merge |
-| **Critical:** | Blocks merge | Security vulnerability, data loss, broken functionality |
-| **Nit:** | Minor, optional | Author may ignore — formatting, style preferences |
-| **Optional:** / **Consider:** | Suggestion | Worth considering but not required |
-| **FYI** | Informational only | No action needed — context for future reference |
-
-This prevents authors from treating all feedback as mandatory and wasting time on optional suggestions.
-
-### Step 5: Verify the Verification
-
-Check the author's verification story:
-
-```
-- What tests were run?
-- Did the build pass?
-- Was the change tested manually?
-- Are there screenshots for UI changes?
-- Is there a before/after comparison?
-```
-
-## Multi-Model Review Pattern
-
-Use different models for different review perspectives:
-
-```
-Model A writes the code
-    │
-    ▼
-Model B reviews for correctness and architecture
-    │
-    ▼
-Model A addresses the feedback
-    │
-    ▼
-Human makes the final call
-```
-
-This catches issues that a single model might miss — different models have different blind spots.
-
-**Example prompt for a review agent:**
-```
-Review this code change for correctness, security, and adherence to
-our project conventions. The spec says [X]. The change should [Y].
-Flag any issues as Critical, Important, or Suggestion.
-```
-
-## Dead Code Hygiene
-
-After any refactoring or implementation change, check for orphaned code:
-
-1. Identify code that is now unreachable or unused
-2. List it explicitly
-3. **Ask before deleting:** "Should I remove these now-unused elements: [list]?"
-
-Don't leave dead code lying around — it confuses future readers and agents. But don't silently delete things you're not sure about. When in doubt, ask.
-
-```
-DEAD CODE IDENTIFIED:
-- formatLegacyDate() in src/utils/date.ts — replaced by formatDate()
-- OldTaskCard component in src/components/ — replaced by TaskCard
-- LEGACY_API_URL constant in src/config.ts — no remaining references
-→ Safe to remove these?
-```
-
-## Review Speed
-
-Slow reviews block entire teams. The cost of context-switching to review is less than the waiting cost imposed on others.
-
-- **Respond within one business day** — this is the maximum, not the target
-- **Ideal cadence:** Respond shortly after a review request arrives, unless deep in focused coding. A typical change should complete multiple review rounds in a single day
-- **Prioritize fast individual responses** over quick final approval. Quick feedback reduces frustration even if multiple rounds are needed
-- **Large changes:** Ask the author to split them rather than reviewing one massive changeset
-
-## Handling Disagreements
-
-When resolving review disputes, apply this hierarchy:
-
-1. **Technical facts and data** override opinions and preferences
-2. **Style guides** are the absolute authority on style matters
-3. **Software design** must be evaluated on engineering principles, not personal preference
-4. **Codebase consistency** is acceptable if it doesn't degrade overall health
-
-**Don't accept "I'll clean it up later."** Experience shows deferred cleanup rarely happens. Require cleanup before submission unless it's a genuine emergency. If surrounding issues can't be addressed in this change, require filing a bug with self-assignment.
-
-## Honesty in Review
-
-When reviewing code — whether written by you, another agent, or a human:
-
-- **Don't rubber-stamp.** "LGTM" without evidence of review helps no one.
-- **Don't soften real issues.** "This might be a minor concern" when it's a bug that will hit production is dishonest.
-- **Quantify problems when possible.** "This N+1 query will add ~50ms per item in the list" is better than "this could be slow."
-- **Push back on approaches with clear problems.** Sycophancy is a failure mode in reviews. If the implementation has issues, say so directly and propose alternatives.
-- **Accept override gracefully.** If the author has full context and disagrees, defer to their judgment. Comment on code, not people — reframe personal critiques to focus on the code itself.
-
-## Dependency Discipline
-
-Part of code review is dependency review:
-
-**Before adding any dependency:**
-1. Does the existing stack solve this? (Often it does.)
-2. How large is the dependency? (Check bundle impact.)
-3. Is it actively maintained? (Check last commit, open issues.)
-4. Does it have known vulnerabilities? (`npm audit`)
-5. What's the license? (Must be compatible with the project.)
-
-**Rule:** Prefer standard library and existing utilities over new dependencies. Every dependency is a liability.
-
-## The Review Checklist
+### 好的审查评论
 
 ```markdown
-## Review: [PR/Change title]
+P1: 这个 API 调用在请求之间没有错误处理。
+如果网络故障，用户会看到空白页面而不是错误消息。
 
-### Context
-- [ ] I understand what this change does and why
-
-### Correctness
-- [ ] Change matches spec/task requirements
-- [ ] Edge cases handled
-- [ ] Error paths handled
-- [ ] Tests cover the change adequately
-
-### Readability
-- [ ] Names are clear and consistent
-- [ ] Logic is straightforward
-- [ ] No unnecessary complexity
-
-### Architecture
-- [ ] Follows existing patterns
-- [ ] No unnecessary coupling or dependencies
-- [ ] Appropriate abstraction level
-
-### Security
-- [ ] No secrets in code
-- [ ] Input validated at boundaries
-- [ ] No injection vulnerabilities
-- [ ] Auth checks in place
-- [ ] External data sources treated as untrusted
-
-### Performance
-- [ ] No N+1 patterns
-- [ ] No unbounded operations
-- [ ] Pagination on list endpoints
-
-### Verification
-- [ ] Tests pass
-- [ ] Build succeeds
-- [ ] Manual verification done (if applicable)
-
-### Verdict
-- [ ] **Approve** — Ready to merge
-- [ ] **Request changes** — Issues must be addressed
+建议：添加 try/catch 并显示错误状态：
+```typescript
+try {
+  const data = await fetchTasks(projectId);
+  setTasks(data);
+} catch (error) {
+  setError(error);
+}
 ```
-## See Also
+```
 
-- For detailed security review guidance, see `references/security-checklist.md`
-- For performance review checks, see `references/performance-checklist.md`
+### 差的审查评论
 
-## Common Rationalizations
+```markdown
+需要更好的错误处理
+```
 
-| Rationalization | Reality |
+（为什么？在哪里？怎么样更好？）
+
+### 审查评论结构
+
+1. **严重程度**（P0/P1/P2/P3）
+2. **位置**（文件和行）
+3. **问题**（出错了什么）
+4. **影响**（为什么重要）
+5. **建议**（如何修复——至少对 P0/P1）
+
+## 常见代码质量问题
+
+| 问题 | 检测 | 修复 |
+|------|------|------|
+| **上帝函数** | 函数超过 50 行或做 >1 件事 | 拆分为更小的函数 |
+| **散弹式修改** | 一个概念变更需要修改 >5 个文件 | 合并相关逻辑 |
+| **原始偏执** | 到处传 string/number 而非类型 | 为领域概念创建类型 |
+| **死代码** | 未使用的导入、变量、函数 | 删除它 |
+| **注释掉的代码** | 被注释掉的代码块 | 删除——git 记得 |
+| **魔法数字** | 代码中的原始数字 | 提取为命名常量 |
+| **深度嵌套** | 代码嵌套 >3 层 | 提前返回，提取函数 |
+| **过度抽象** | 只有一个实现的接口 | 等到第二个用例再加 |
+| **测试不可读** | 测试名称不描述行为 | 重命名以描述期望行为 |
+
+## 代码审查清单（审查者）
+
+- [ ] 每个发现都有严重程度（P0-P3）
+- [ ] P0/P1 发现附有可操作建议
+- [ ] 审查涵盖正确性、一致性、安全性、可维护性、测试
+- [ ] 积极发现已指出（P3 级别）
+- [ ] 无个人偏好被表述为阻塞问题
+
+## 代码审查清单（作者——合入前）
+
+- [ ] 自我审查了自己的差异
+- [ ] 所有测试通过
+- [ ] 构建成功
+- [ ] 无调试代码残留（console.log、TODO 注释）
+- [ ] PR 描述清楚解释变更和原因
+- [ ] 复杂决策在代码注释或 PR 描述中有解释
+
+## 常见合理化说辞
+
+| 合理化说辞 | 现实 |
 |---|---|
-| "It works, that's good enough" | Working code that's unreadable, insecure, or architecturally wrong creates debt that compounds. |
-| "I wrote it, so I know it's correct" | Authors are blind to their own assumptions. Every change benefits from another set of eyes. |
-| "We'll clean it up later" | Later never comes. The review is the quality gate — use it. Require cleanup before merge, not after. |
-| "AI-generated code is probably fine" | AI code needs more scrutiny, not less. It's confident and plausible, even when wrong. |
-| "The tests pass, so it's good" | Tests are necessary but not sufficient. They don't catch architecture problems, security issues, or readability concerns. |
+| "只是小变更，不需要审查" | 小变更也能有缺陷和安全漏洞。审查负担很小，保护很大。 |
+| "测试通过就够了" | 测试验证行为。审查验证设计、安全性和可维护性。 |
+| "我稍后清理" | 你不会的。"稍后"是永远不会。现在就做或创建一个跟踪任务。 |
+| "这只是风格偏好" | 风格偏好是 P2。一致性问题（混用模式）是 P1。知道区别。 |
+| "审查花了太长时间" | 在审查中捕获的缺陷比在生产中便宜 100 倍。 |
 
-## Red Flags
+## 危险信号
 
-- PRs merged without any review
-- Review that only checks if tests pass (ignoring other axes)
-- "LGTM" without evidence of actual review
-- Security-sensitive changes without security-focused review
-- Large PRs that are "too big to review properly" (split them)
-- No regression tests with bug fix PRs
-- Review comments without severity labels — makes it unclear what's required vs optional
-- Accepting "I'll fix it later" — it never happens
+- 没有严重程度的审查评论
+- P0/P1 发现没有建议的修复
+- 审查跳过安全检查
+- 作者自我批准
+- 审查评论是模糊的（"这里需要改进"）
+- 代码合入时没有确认测试通过
+- 审查变成设计争论（应该早在设计中解决）
 
-## Verification
+## 验证
 
-After review is complete:
+审查代码后：
 
-- [ ] All Critical issues are resolved
-- [ ] All Important issues are resolved or explicitly deferred with justification
-- [ ] Tests pass
-- [ ] Build succeeds
-- [ ] The verification story is documented (what changed, how it was verified)
+- [ ] 每个发现都有严重程度
+- [ ] P0/P1 发现有可操作的修复建议
+- [ ] 审查涵盖五个维度（正确性、一致性、安全性、可维护性、测试）
+- [ ] 代码审查结果已传达给作者
+- [ ] 合入前 P0 问题已解决

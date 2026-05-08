@@ -1,60 +1,60 @@
-# Contributing to Agent Skills
+# 贡献指南
 
-Thanks for your interest in contributing! This project is a collection of production-grade engineering skills for AI coding agents.
+感谢你对贡献的兴趣！本项目是面向 AI 编程代理的生产级工程技能集合。
 
-## Adding a New Skill
+## 添加新技能
 
-1. Create a directory under `skills/` with a kebab-case name
-2. Add a `SKILL.md` following the format in [docs/skill-anatomy.md](docs/skill-anatomy.md)
-3. Include YAML frontmatter with `name` and `description` fields
-4. Ensure the `description` briefly says what the skill does (third person), then includes `Use when` trigger conditions
+1. 在 `skills/` 下创建一个 kebab-case 命名的目录
+2. 按照 [docs/skill-anatomy.md](docs/skill-anatomy.md) 中的格式添加 `SKILL.md`
+3. 包含带有 `name` 和 `description` 字段的 YAML frontmatter
+4. 确保 `description` 简要说明技能的作用（第三人称），然后包含 `Use when` 触发条件
 
-### Skill Quality Bar
+### 技能质量标准
 
-Skills should be:
+技能应该是：
 
-- **Specific** — Actionable steps, not vague advice
-- **Verifiable** — Clear exit criteria with evidence requirements
-- **Battle-tested** — Based on real engineering workflows, not theoretical ideals
-- **Minimal** — Only the content needed to guide the agent correctly
+- **具体的** — 可操作的步骤，而非模糊的建议
+- **可验证的** — 明确的退出标准和证据要求
+- **经过实战检验的** — 基于真实的工程工作流，而非理论理想
+- **精简的** — 仅包含正确引导代理所需的内容
 
-### Structure
+### 结构
 
-Every new skill must have:
+每个新技能必须包含：
 
-- `SKILL.md` in the skill directory
-- YAML frontmatter with valid `name` and `description`
+- 技能目录中的 `SKILL.md`
+- 包含有效 `name` 和 `description` 的 YAML frontmatter
 
-New skills should generally follow the standard anatomy:
+新技能通常应遵循标准结构：
 
-- **Overview** — What this skill does and why it matters
-- **When to Use** — Triggering conditions
-- **Process** — Step-by-step workflow
-- **Common Rationalizations** — Excuses agents use to skip steps, with rebuttals
-- **Red Flags** — Warning signs that the skill is being applied incorrectly
-- **Verification** — How to confirm the skill was applied correctly
+- **概述** — 此技能做什么以及为什么重要
+- **使用时机** — 触发条件
+- **流程** — 分步工作流
+- **常见自我辩解** — 代理用来跳过步骤的借口，以及反驳
+- **红旗** — 技能被错误应用的警示信号
+- **验证** — 如何确认技能被正确应用
 
-### What Not to Do
+### 不要做的事
 
-- Don't duplicate content between skills — reference other skills instead
-- Don't add skills that are vague advice instead of actionable processes
-- Don't create supporting files unless content exceeds 100 lines
-- Don't put reference material inside skill directories — use `references/` instead
+- 不要在技能之间重复内容——改为引用其他技能
+- 不要添加模糊建议而非可操作流程的技能
+- 除非内容超过 100 行，否则不要创建支持文件
+- 不要将参考材料放在技能目录内——使用 `references/` 代替
 
-## Modifying Existing Skills
+## 修改现有技能
 
-- Keep changes focused and minimal
-- Preserve the existing structure and tone
-- Test that YAML frontmatter remains valid after edits
+- 保持变更聚焦和精简
+- 保留现有结构和语气
+- 编辑后测试 YAML frontmatter 保持有效
 
-## Reporting Issues
+## 报告问题
 
-Open an issue if you find:
+如果你发现以下情况，请提交 issue：
 
-- A skill that gives incorrect or outdated guidance
-- Missing coverage for a common engineering workflow
-- Inconsistencies between skills
+- 技能给出不正确或过时的指导
+- 缺少对常见工程工作流的覆盖
+- 技能之间存在不一致
 
-## License
+## 许可证
 
-By contributing, you agree that your contributions will be licensed under the MIT License.
+通过贡献，你同意你的贡献将在 MIT 许可证下授权。

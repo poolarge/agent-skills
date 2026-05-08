@@ -1,21 +1,21 @@
-# Skill Anatomy
+# Skill 结构规范
 
-This document describes the structure and format of agent-skills skill files. Use this as a guide when contributing new skills or understanding existing ones.
+本文档描述 agent-skills skill 文件的结构和格式。在贡献新 skill 或理解现有 skill 时，请将此作为参考指南。
 
-## File Location
+## 文件位置
 
-Every skill lives in its own directory under `skills/`:
+每个 skill 位于 `skills/` 下的独立目录中：
 
 ```
 skills/
   skill-name/
-    SKILL.md           # Required: The skill definition
-    supporting-file.md # Optional: Reference material loaded on demand
+    SKILL.md           # 必需：skill 定义
+    supporting-file.md # 可选：按需加载的参考资料
 ```
 
-## SKILL.md Format
+## SKILL.md 格式
 
-### Frontmatter (Required)
+### 前置信息（必需）
 
 ```yaml
 ---
@@ -24,105 +24,105 @@ description: Guides agents through [task/workflow]. Use when [specific trigger c
 ---
 ```
 
-**Rules:**
-- `name`: Lowercase, hyphen-separated. Must match the directory name.
-- `description`: Start with what the skill does in third person, then include one or more clear "Use when" trigger conditions. Include both *what* and *when*. Maximum 1024 characters.
+**规则：**
+- `name`：小写，连字符分隔。必须与目录名匹配。
+- `description`：以第三人称描述 skill 的功能开头，然后包含一个或多个明确的"Use when"触发条件。需同时包含*做什么*和*何时做*。最多 1024 个字符。
 
-**Why this matters:** Agents discover skills by reading descriptions. The description is injected into the system prompt, so it must tell the agent both what the skill provides and when to activate it. Do not summarize the workflow — if the description contains process steps, the agent may follow the summary instead of reading the full skill.
+**为什么这很重要：** 代理通过阅读描述来发现 skill。描述会被注入到系统提示中，因此它必须同时告诉代理 skill 提供什么以及何时激活它。不要概述工作流 —— 如果描述包含流程步骤，代理可能会按照概述而不是阅读完整的 skill 来执行。
 
-### Standard Sections (Recommended Pattern)
+### 标准章节（推荐模式）
 
 ```markdown
-# Skill Title
+# Skill 标题
 
-## Overview
-One-two sentences explaining what this skill does and why it matters.
+## 概述
+一两句话解释此 skill 做什么以及为什么重要。
 
-## When to Use
-- Bullet list of triggering conditions (symptoms, task types)
-- When NOT to use (exclusions)
+## 何时使用
+- 触发条件的要点列表（症状、任务类型）
+- 何时不使用（排除条件）
 
-## [Core Process / The Workflow / Steps]
-The main workflow, broken into numbered steps or phases.
-Include code examples where they help.
-Use flowcharts (ASCII) where decision points exist.
+## [核心流程 / 工作流 / 步骤]
+主要工作流，分解为编号步骤或阶段。
+在有帮助的地方包含代码示例。
+在存在决策点的地方使用流程图（ASCII）。
 
-## [Specific Techniques / Patterns]
-Detailed guidance for specific scenarios.
-Code examples, templates, configuration.
+## [特定技术 / 模式]
+针对特定场景的详细指导。
+代码示例、模板、配置。
 
-## Common Rationalizations
-| Rationalization | Reality |
+## 常见自我辩解
+| 自我辩解 | 现实 |
 |---|---|
-| Excuse agents use to skip steps | Why the excuse is wrong |
+| 代理用来跳过步骤的借口 | 为什么该借口是错误的 |
 
-## Red Flags
-- Behavioral patterns indicating the skill is being violated
-- Things to watch for during review
+## 红旗信号
+- 表明 skill 正在被违反的行为模式
+- 审查时需要注意的事项
 
-## Verification
-After completing the skill's process, confirm:
-- [ ] Checklist of exit criteria
-- [ ] Evidence requirements
+## 验证
+完成 skill 流程后，确认：
+- [ ] 退出标准检查清单
+- [ ] 证据要求
 ```
 
-## Section Purposes
+## 各章节目的
 
-### Overview
-The "elevator pitch" for the skill. Should answer: What does this skill do, and why should an agent follow it?
+### 概述
+skill 的"电梯演讲"。应该回答：此 skill 做什么，代理为什么要遵循它？
 
-### When to Use
-Helps agents and humans decide if this skill applies to the current task. Include both positive triggers ("Use when X") and negative exclusions ("NOT for Y").
+### 何时使用
+帮助代理和人类判断此 skill 是否适用于当前任务。同时包含正向触发条件（"Use when X"）和反向排除条件（"NOT for Y"）。
 
-### Core Process
-The heart of the skill. This is the step-by-step workflow the agent follows. Must be specific and actionable — not vague advice.
+### 核心流程
+skill 的核心。这是代理遵循的逐步工作流。必须具体且可操作 —— 而不是模糊的建议。
 
-**Good:** "Run `npm test` and verify all tests pass"
-**Bad:** "Make sure the tests work"
+**好的写法：** "运行 `npm test` 并验证所有测试通过"
+**差的写法：** "确保测试正常工作"
 
-### Common Rationalizations
-The most distinctive feature of well-crafted skills. These are excuses agents use to skip important steps, paired with rebuttals. They prevent the agent from rationalizing its way out of following the process.
+### 常见自我辩解
+精心设计的 skill 最显著的特征。这些是代理用来跳过重要步骤的借口，配有反驳。它们防止代理通过自我辩解来逃避遵循流程。
 
-Think of every time an agent has said "I'll add tests later" or "This is simple enough to skip the spec" — those go here with a factual counter-argument.
+想想代理每次说"我稍后再加测试"或"这很简单，可以跳过规格说明"的时候 —— 把这些连同事实反驳一起放进去。
 
-### Red Flags
-Observable signs that the skill is being violated. Useful during code review and self-monitoring.
+### 红旗信号
+可观察到的表明 skill 正在被违反的迹象。在代码审查和自我监控时很有用。
 
-### Verification
-The exit criteria. A checklist the agent uses to confirm the skill's process is complete. Every checkbox should be verifiable with evidence (test output, build result, screenshot, etc.).
+### 验证
+退出标准。代理用来确认 skill 流程已完成的检查清单。每个复选框都应该可以用证据验证（测试输出、构建结果、截图等）。
 
-## Supporting Files
+## 支持文件
 
-Create supporting files only when:
-- Reference material exceeds 100 lines (keep the main SKILL.md focused)
-- Code tools or scripts are needed
-- Checklists are long enough to justify separate files
+仅在以下情况下创建支持文件：
+- 参考资料超过 100 行（保持主 SKILL.md 聚焦）
+- 需要代码工具或脚本
+- 检查清单足够长，值得单独成文件
 
-Keep patterns and principles inline when under 50 lines.
+当内容少于 50 行时，将模式和原则保留在主文件中。
 
-## Writing Principles
+## 编写原则
 
-1. **Process over knowledge.** Skills are workflows, not reference docs. Steps, not facts.
-2. **Specific over general.** "Run `npm test`" beats "verify the tests".
-3. **Evidence over assumption.** Every verification checkbox requires proof.
-4. **Anti-rationalization.** Every skip-worthy step needs a counter-argument in the rationalizations table.
-5. **Progressive disclosure.** Main SKILL.md is the entry point. Supporting files are loaded only when needed.
-6. **Token-conscious.** Every section must justify its inclusion. If removing it wouldn't change agent behavior, remove it.
+1. **流程优于知识。** Skill 是工作流，不是参考文档。是步骤，不是事实。
+2. **具体优于笼统。** "运行 `npm test`" 优于 "验证测试"。
+3. **证据优于假设。** 每个验证复选框都需要证明。
+4. **反自我辩解。** 每个可能被跳过的步骤都需要在辩解表中有对应的反驳。
+5. **渐进式展示。** 主 SKILL.md 是入口点。支持文件仅在需要时加载。
+6. **注重 Token。** 每个章节都必须证明其存在的价值。如果删除它不会改变代理行为，就删除它。
 
-## Naming Conventions
+## 命名约定
 
-- Skill directories: `lowercase-hyphen-separated`
-- Skill files: `SKILL.md` (always uppercase)
-- Supporting files: `lowercase-hyphen-separated.md`
-- References: stored in `references/` at the project root, not inside skill directories
+- Skill 目录：`lowercase-hyphen-separated`
+- Skill 文件：`SKILL.md`（始终大写）
+- 支持文件：`lowercase-hyphen-separated.md`
+- 参考资料：存储在项目根目录的 `references/` 中，不在 skill 目录内
 
-## Cross-Skill References
+## 跨 Skill 引用
 
-Reference other skills by name:
+通过名称引用其他 skill：
 
 ```markdown
-Follow the `test-driven-development` skill for writing tests.
-If the build breaks, use the `debugging-and-error-recovery` skill.
+遵循 `test-driven-development` 技能来编写测试。
+如果构建失败，使用 `debugging-and-error-recovery` 技能。
 ```
 
-Don't duplicate content between skills — reference and link instead.
+不要在 skill 之间重复内容 —— 应该引用和链接。

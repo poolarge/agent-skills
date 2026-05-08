@@ -1,57 +1,57 @@
-# Security Checklist
+# 安全检查清单
 
-Quick reference for web application security. Use alongside the `security-and-hardening` skill.
+Web 应用安全的快速参考。配合 `security-and-hardening` 技能使用。
 
-## Table of Contents
+## 目录
 
-- [Pre-Commit Checks](#pre-commit-checks)
-- [Authentication](#authentication)
-- [Authorization](#authorization)
-- [Input Validation](#input-validation)
-- [Security Headers](#security-headers)
-- [CORS Configuration](#cors-configuration)
-- [Data Protection](#data-protection)
-- [Dependency Security](#dependency-security)
-- [Error Handling](#error-handling)
-- [OWASP Top 10 Quick Reference](#owasp-top-10-quick-reference)
+- [预提交检查](#预提交检查)
+- [认证](#认证)
+- [授权](#授权)
+- [输入验证](#输入验证)
+- [安全头](#安全头)
+- [CORS 配置](#cors-配置)
+- [数据保护](#数据保护)
+- [依赖安全](#依赖安全)
+- [错误处理](#错误处理)
+- [OWASP Top 10 快速参考](#owasp-top-10-快速参考)
 
-## Pre-Commit Checks
+## 预提交检查
 
-- [ ] No secrets in code (`git diff --cached | grep -i "password\|secret\|api_key\|token"`)
-- [ ] `.gitignore` covers: `.env`, `.env.local`, `*.pem`, `*.key`
-- [ ] `.env.example` uses placeholder values (not real secrets)
+- [ ] 代码中没有密钥 (`git diff --cached | grep -i "password\|secret\|api_key\|token"`)
+- [ ] `.gitignore` 包含：`.env`, `.env.local`, `*.pem`, `*.key`
+- [ ] `.env.example` 使用占位值（不是真实密钥）
 
-## Authentication
+## 认证
 
-- [ ] Passwords hashed with bcrypt (≥12 rounds), scrypt, or argon2
-- [ ] Session cookies: `httpOnly`, `secure`, `sameSite: 'lax'`
-- [ ] Session expiration configured (reasonable max-age)
-- [ ] Rate limiting on login endpoint (≤10 attempts per 15 minutes)
-- [ ] Password reset tokens: time-limited (≤1 hour), single-use
-- [ ] Account lockout after repeated failures (optional, with notification)
-- [ ] MFA supported for sensitive operations (optional but recommended)
+- [ ] 密码使用 bcrypt（≥12 rounds）、scrypt 或 argon2 进行哈希
+- [ ] Session cookies：`httpOnly`, `secure`, `sameSite: 'lax'`
+- [ ] 配置了 session 过期时间（合理的 max-age）
+- [ ] 登录端点有速率限制（15分钟内≤10次尝试）
+- [ ] 密码重置 token：限时（≤1小时）、一次性
+- [ ] 重复失败后锁定账户（可选，附带通知）
+- [ ] 敏感操作支持 MFA（可选但推荐）
 
-## Authorization
+## 授权
 
-- [ ] Every protected endpoint checks authentication
-- [ ] Every resource access checks ownership/role (prevents IDOR)
-- [ ] Admin endpoints require admin role verification
-- [ ] API keys scoped to minimum necessary permissions
-- [ ] JWT tokens validated (signature, expiration, issuer)
+- [ ] 每个受保护的端点都检查认证
+- [ ] 每个资源访问都检查所有权/角色（防止 IDOR）
+- [ ] 管理端点需要管理员角色验证
+- [ ] API keys 限定为最小必要权限
+- [ ] JWT tokens 经过验证（签名、过期时间、颁发者）
 
-## Input Validation
+## 输入验证
 
-- [ ] All user input validated at system boundaries (API routes, form handlers)
-- [ ] Validation uses allowlists (not denylists)
-- [ ] String lengths constrained (min/max)
-- [ ] Numeric ranges validated
-- [ ] Email, URL, and date formats validated with proper libraries
-- [ ] File uploads: type restricted, size limited, content verified
-- [ ] SQL queries parameterized (no string concatenation)
-- [ ] HTML output encoded (use framework auto-escaping)
-- [ ] URLs validated before redirect (prevent open redirect)
+- [ ] 所有用户输入在系统边界处验证（API 路由、表单处理器）
+- [ ] 验证使用白名单（不是黑名单）
+- [ ] 字符串长度有限制（min/max）
+- [ ] 数字范围已验证
+- [ ] Email、URL 和日期格式使用合适的库验证
+- [ ] 文件上传：类型受限、大小受限、内容已验证
+- [ ] SQL 查询使用参数化（不使用字符串拼接）
+- [ ] HTML 输出已编码（使用框架自动转义）
+- [ ] 重定向前验证 URL（防止开放重定向）
 
-## Security Headers
+## 安全头
 
 ```
 Content-Security-Policy: default-src 'self'; script-src 'self'
@@ -63,10 +63,10 @@ Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: camera=(), microphone=(), geolocation=()
 ```
 
-## CORS Configuration
+## CORS 配置
 
 ```typescript
-// Restrictive (recommended)
+// 严格模式（推荐）
 cors({
   origin: ['https://yourdomain.com', 'https://app.yourdomain.com'],
   credentials: true,
@@ -74,61 +74,61 @@ cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 })
 
-// NEVER use in production:
-cors({ origin: '*' })  // Allows any origin
+// 生产环境中绝不使用：
+cors({ origin: '*' })  // 允许任何来源
 ```
 
-## Data Protection
+## 数据保护
 
-- [ ] Sensitive fields excluded from API responses (`passwordHash`, `resetToken`, etc.)
-- [ ] Sensitive data not logged (passwords, tokens, full CC numbers)
-- [ ] PII encrypted at rest (if required by regulation)
-- [ ] HTTPS for all external communication
-- [ ] Database backups encrypted
+- [ ] API 响应中排除敏感字段（`passwordHash`、`resetToken` 等）
+- [ ] 不记录敏感数据（密码、token、完整信用卡号）
+- [ ] PII 在存储时加密（如果法规要求）
+- [ ] 所有外部通信使用 HTTPS
+- [ ] 数据库备份已加密
 
-## Dependency Security
+## 依赖安全
 
 ```bash
-# Audit dependencies
+# 审计依赖
 npm audit
 
-# Fix automatically where possible
+# 尽可能自动修复
 npm audit fix
 
-# Check for critical vulnerabilities
+# 检查严重漏洞
 npm audit --audit-level=critical
 
-# Keep dependencies updated
+# 保持依赖更新
 npx npm-check-updates
 ```
 
-## Error Handling
+## 错误处理
 
 ```typescript
-// Production: generic error, no internals
+// 生产环境：通用错误，不泄露内部信息
 res.status(500).json({
   error: { code: 'INTERNAL_ERROR', message: 'Something went wrong' }
 });
 
-// NEVER in production:
+// 生产环境中绝不使用：
 res.status(500).json({
   error: err.message,
-  stack: err.stack,         // Exposes internals
-  query: err.sql,           // Exposes database details
+  stack: err.stack,         // 泄露内部信息
+  query: err.sql,           // 泄露数据库细节
 });
 ```
 
-## OWASP Top 10 Quick Reference
+## OWASP Top 10 快速参考
 
-| # | Vulnerability | Prevention |
+| # | 漏洞 | 防御措施 |
 |---|---|---|
-| 1 | Broken Access Control | Auth checks on every endpoint, ownership verification |
-| 2 | Cryptographic Failures | HTTPS, strong hashing, no secrets in code |
-| 3 | Injection | Parameterized queries, input validation |
-| 4 | Insecure Design | Threat modeling, spec-driven development |
-| 5 | Security Misconfiguration | Security headers, minimal permissions, audit deps |
-| 6 | Vulnerable Components | `npm audit`, keep deps updated, minimal deps |
-| 7 | Auth Failures | Strong passwords, rate limiting, session management |
-| 8 | Data Integrity Failures | Verify updates/dependencies, signed artifacts |
-| 9 | Logging Failures | Log security events, don't log secrets |
-| 10 | SSRF | Validate/allowlist URLs, restrict outbound requests |
+| 1 | 访问控制失效 | 每个端点做认证检查，验证所有权 |
+| 2 | 加密失败 | HTTPS，强哈希，代码中无密钥 |
+| 3 | 注入 | 参数化查询，输入验证 |
+| 4 | 不安全设计 | 威胁建模，规范驱动开发 |
+| 5 | 安全配置错误 | 安全头，最小权限，审计依赖 |
+| 6 | 脆弱组件 | `npm audit`，保持依赖更新，最小依赖 |
+| 7 | 认证失败 | 强密码，速率限制，session 管理 |
+| 8 | 数据完整性失败 | 验证更新/依赖，签名构件 |
+| 9 | 日志失败 | 记录安全事件，不记录密钥 |
+| 10 | SSRF | 验证/白名单 URL，限制出站请求 |

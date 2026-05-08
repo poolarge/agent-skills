@@ -1,43 +1,42 @@
 ---
 name: source-driven-development
-description: Grounds every implementation decision in official documentation. Use when you want authoritative, source-cited code free from outdated patterns. Use when building with any framework or library where correctness matters.
+description: 将每个实现决策基于官方文档。当你想要权威的、有来源引用且无过时模式的代码时使用。当使用正确性至关重要的任何框架或库构建时使用。
 ---
 
-# Source-Driven Development
+# 来源驱动开发
 
-## Overview
+## 概述
 
-Every framework-specific code decision must be backed by official documentation. Don't implement from memory — verify, cite, and let the user see your sources. Training data goes stale, APIs get deprecated, best practices evolve. This skill ensures the user gets code they can trust because every pattern traces back to an authoritative source they can check.
+每个框架特定的代码决策必须有官方文档支撑。不要凭记忆实现——验证、引用，让用户看到你的来源。训练数据会过时，API 会弃用，最佳实践会演进。此技能确保用户获得可信赖的代码，因为每个模式都可追溯到一个用户可以核查的权威来源。
 
-## When to Use
+## 何时使用
 
-- The user wants code that follows current best practices for a given framework
-- Building boilerplate, starter code, or patterns that will be copied across a project
-- The user explicitly asks for documented, verified, or "correct" implementation
-- Implementing features where the framework's recommended approach matters (forms, routing, data fetching, state management, auth)
-- Reviewing or improving code that uses framework-specific patterns
-- Any time you are about to write framework-specific code from memory
+- 用户想要遵循给定框架当前最佳实践的代码
+- 构建将在项目中复制的样板代码、起始代码或模式
+- 用户明确要求有文档依据的、经验证的或"正确的"实现
+- 实现框架推荐方式重要的功能（表单、路由、数据获取、状态管理、认证）
+- 审查或改进使用框架特定模式的代码
+- 任何你即将凭记忆编写框架特定代码的时候
 
-**When NOT to use:**
+**何时不使用：**
 
-- Correctness does not depend on a specific version (renaming variables, fixing typos, moving files)
-- Pure logic that works the same across all versions (loops, conditionals, data structures)
-- The user explicitly wants speed over verification ("just do it quickly")
+- 正确性不依赖特定版本（重命名变量、修复拼写、移动文件）
+- 所有版本行为相同的纯逻辑（循环、条件、数据结构）
+- 用户明确要求速度优先于验证（"快速搞定就行"）
 
-## The Process
+## 流程
 
 ```
-DETECT ──→ FETCH ──→ IMPLEMENT ──→ CITE
+检测 ──→ 获取 ──→ 实现 ──→ 引用
   │          │           │            │
   ▼          ▼           ▼            ▼
- What       Get the    Follow the   Show your
- stack?     relevant   documented   sources
-            docs       patterns
+ 什么       获取       遵循        展示
+ 技术栈？    相关文档    有文档模式    来源
 ```
 
-### Step 1: Detect Stack and Versions
+### 步骤 1：检测技术栈和版本
 
-Read the project's dependency file to identify exact versions:
+读取项目的依赖文件以识别确切版本：
 
 ```
 package.json    → Node/React/Vue/Angular/Svelte
@@ -48,147 +47,147 @@ Cargo.toml      → Rust
 Gemfile         → Ruby/Rails
 ```
 
-State what you found explicitly:
+明确说明你发现了什么：
 
 ```
-STACK DETECTED:
-- React 19.1.0 (from package.json)
+检测到的技术栈：
+- React 19.1.0（来自 package.json）
 - Vite 6.2.0
 - Tailwind CSS 4.0.3
-→ Fetching official docs for the relevant patterns.
+→ 正在获取相关模式的官方文档。
 ```
 
-If versions are missing or ambiguous, **ask the user**. Don't guess — the version determines which patterns are correct.
+如果版本缺失或模糊，**问用户**。不要猜——版本决定了哪些模式是正确的。
 
-### Step 2: Fetch Official Documentation
+### 步骤 2：获取官方文档
 
-Fetch the specific documentation page for the feature you're implementing. Not the homepage, not the full docs — the relevant page.
+获取你正在实现的功能的具体文档页面。不是首页，不是完整文档——而是相关页面。
 
-**Source hierarchy (in order of authority):**
+**来源层级（按权威排序）：**
 
-| Priority | Source | Example |
-|----------|--------|---------|
-| 1 | Official documentation | react.dev, docs.djangoproject.com, symfony.com/doc |
-| 2 | Official blog / changelog | react.dev/blog, nextjs.org/blog |
-| 3 | Web standards references | MDN, web.dev, html.spec.whatwg.org |
-| 4 | Browser/runtime compatibility | caniuse.com, node.green |
+| 优先级 | 来源 | 示例 |
+|----------|------|------|
+| 1 | 官方文档 | react.dev, docs.djangoproject.com, symfony.com/doc |
+| 2 | 官方博客 / 更新日志 | react.dev/blog, nextjs.org/blog |
+| 3 | Web 标准参考 | MDN, web.dev, html.spec.whatwg.org |
+| 4 | 浏览器/运行时兼容性 | caniuse.com, node.green |
 
-**Not authoritative — never cite as primary sources:**
+**非权威——绝不作为主要来源引用：**
 
-- Stack Overflow answers
-- Blog posts or tutorials (even popular ones)
-- AI-generated documentation or summaries
-- Your own training data (that is the whole point — verify it)
+- Stack Overflow 回答
+- 博客文章或教程（即使很流行）
+- AI 生成的文档或摘要
+- 你自己的训练数据（这就是重点——验证它）
 
-**Be precise with what you fetch:**
-
-```
-BAD:  Fetch the React homepage
-GOOD: Fetch react.dev/reference/react/useActionState
-
-BAD:  Search "django authentication best practices"
-GOOD: Fetch docs.djangoproject.com/en/6.0/topics/auth/
-```
-
-After fetching, extract the key patterns and note any deprecation warnings or migration guidance.
-
-When official sources conflict with each other (e.g. a migration guide contradicts the API reference), surface the discrepancy to the user and verify which pattern actually works against the detected version.
-
-### Step 3: Implement Following Documented Patterns
-
-Write code that matches what the documentation shows:
-
-- Use the API signatures from the docs, not from memory
-- If the docs show a new way to do something, use the new way
-- If the docs deprecate a pattern, don't use the deprecated version
-- If the docs don't cover something, flag it as unverified
-
-**When docs conflict with existing project code:**
+**精确获取你需要的内容：**
 
 ```
-CONFLICT DETECTED:
-The existing codebase uses useState for form loading state,
-but React 19 docs recommend useActionState for this pattern.
-(Source: react.dev/reference/react/useActionState)
+差的：  获取 React 首页
+好的：  获取 react.dev/reference/react/useActionState
 
-Options:
-A) Use the modern pattern (useActionState) — consistent with current docs
-B) Match existing code (useState) — consistent with codebase
-→ Which approach do you prefer?
+差的：  搜索 "django authentication best practices"
+好的：  获取 docs.djangoproject.com/en/6.0/topics/auth/
 ```
 
-Surface the conflict. Don't silently pick one.
+获取后，提取关键模式并注意任何弃用警告或迁移指南。
 
-### Step 4: Cite Your Sources
+当官方来源彼此冲突时（例如迁移指南与 API 参考矛盾），向用户暴露差异，并针对检测到的版本验证哪种模式实际有效。
 
-Every framework-specific pattern gets a citation. The user must be able to verify every decision.
+### 步骤 3：遵循有文档的模式实现
 
-**In code comments:**
+编写与文档展示相匹配的代码：
+
+- 使用文档中的 API 签名，而非凭记忆
+- 如果文档展示了做某事的新方式，使用新方式
+- 如果文档弃用了某个模式，不使用弃用版本
+- 如果文档未覆盖某内容，标记为未验证
+
+**当文档与现有项目代码冲突时：**
+
+```
+检测到冲突：
+现有代码库使用 useState 管理表单加载状态，
+但 React 19 文档推荐对此模式使用 useActionState。
+(来源: react.dev/reference/react/useActionState)
+
+选项：
+A) 使用现代模式（useActionState）— 与当前文档一致
+B) 匹配现有代码（useState）— 与代码库一致
+→ 你倾向哪种方法？
+```
+
+暴露冲突。不要悄悄选择一种。
+
+### 步骤 4：引用你的来源
+
+每个框架特定的模式都有引用。用户必须能够验证每个决策。
+
+**在代码注释中：**
 
 ```typescript
-// React 19 form handling with useActionState
-// Source: https://react.dev/reference/react/useActionState#usage
+// React 19 表单处理使用 useActionState
+// 来源: https://react.dev/reference/react/useActionState#usage
 const [state, formAction, isPending] = useActionState(submitOrder, initialState);
 ```
 
-**In conversation:**
+**在对话中：**
 
 ```
-I'm using useActionState instead of manual useState for the
-form submission state. React 19 replaced the manual
-isPending/setIsPending pattern with this hook.
+我使用 useActionState 而非手动 useState 来管理
+表单提交状态。React 19 替换了手动的
+isPending/setIsPending 模式为这个 hook。
 
-Source: https://react.dev/blog/2024/12/05/react-19#actions
+来源: https://react.dev/blog/2024/12/05/react-19#actions
 "useTransition now supports async functions [...] to handle
 pending states automatically"
 ```
 
-**Citation rules:**
+**引用规则：**
 
-- Full URLs, not shortened
-- Prefer deep links with anchors where possible (e.g. `/useActionState#usage` over `/useActionState`) — anchors survive doc restructuring better than top-level pages
-- Quote the relevant passage when it supports a non-obvious decision
-- Include browser/runtime support data when recommending platform features
-- If you cannot find documentation for a pattern, say so explicitly:
+- 完整 URL，不缩短
+- 优先使用带锚点的深链接（例如 `/useActionState#usage` 优于 `/useActionState`）— 锚点在文档重构中比顶级页面更持久
+- 当支持非显然决策时引用相关段落
+- 推荐平台特性时包含浏览器/运行时支持数据
+- 如果找不到某个模式的文档，明确说明：
 
 ```
-UNVERIFIED: I could not find official documentation for this
-pattern. This is based on training data and may be outdated.
-Verify before using in production.
+未验证：我找不到此模式的官方文档。
+这是基于训练数据的，可能已过时。
+在生产中使用前请验证。
 ```
 
-Honesty about what you couldn't verify is more valuable than false confidence.
+对你无法验证的内容的诚实比虚假自信更有价值。
 
-## Common Rationalizations
+## 常见合理化说辞
 
-| Rationalization | Reality |
+| 合理化说辞 | 现实 |
 |---|---|
-| "I'm confident about this API" | Confidence is not evidence. Training data contains outdated patterns that look correct but break against current versions. Verify. |
-| "Fetching docs wastes tokens" | Hallucinating an API wastes more. The user debugs for an hour, then discovers the function signature changed. One fetch prevents hours of rework. |
-| "The docs won't have what I need" | If the docs don't cover it, that's valuable information — the pattern may not be officially recommended. |
-| "I'll just mention it might be outdated" | A disclaimer doesn't help. Either verify and cite, or clearly flag it as unverified. Hedging is the worst option. |
-| "This is a simple task, no need to check" | Simple tasks with wrong patterns become templates. The user copies your deprecated form handler into ten components before discovering the modern approach exists. |
+| "我对这个 API 很有信心" | 信心不是证据。训练数据包含过时模式，看起来正确但对当前版本会破坏。验证。 |
+| "获取文档浪费 token" | 幻造 API 浪费更多。用户调试一小时，然后发现函数签名变了。一次获取防止数小时返工。 |
+| "文档不会有我需要的" | 如果文档没覆盖，那就是有价值的信息——该模式可能不是官方推荐的。 |
+| "我提一下可能过时就行" | 免责声明没有帮助。要么验证并引用，要么明确标记为未验证。折中是最差的选项。 |
+| "这是简单任务，不需要查" | 使用错误模式的简单任务会变成模板。用户在发现现代方式存在之前，已把你的弃用表单处理器复制到十个组件里。 |
 
-## Red Flags
+## 危险信号
 
-- Writing framework-specific code without checking the docs for that version
-- Using "I believe" or "I think" about an API instead of citing the source
-- Implementing a pattern without knowing which version it applies to
-- Citing Stack Overflow or blog posts instead of official documentation
-- Using deprecated APIs because they appear in training data
-- Not reading `package.json` / dependency files before implementing
-- Delivering code without source citations for framework-specific decisions
-- Fetching an entire docs site when only one page is relevant
+- 不检查该版本的文档就编写框架特定代码
+- 用"我相信"或"我认为"谈论 API，而不是引用来源
+- 实现模式但不知道适用哪个版本
+- 引用 Stack Overflow 或博客文章而非官方文档
+- 因为训练数据中有就使用弃用 API
+- 实现前不读 `package.json` / 依赖文件
+- 交付代码时框架特定决策无来源引用
+- 只有一个页面相关时获取整个文档站点
 
-## Verification
+## 验证
 
-After implementing with source-driven development:
+使用来源驱动开发实现后：
 
-- [ ] Framework and library versions were identified from the dependency file
-- [ ] Official documentation was fetched for framework-specific patterns
-- [ ] All sources are official documentation, not blog posts or training data
-- [ ] Code follows the patterns shown in the current version's documentation
-- [ ] Non-trivial decisions include source citations with full URLs
-- [ ] No deprecated APIs are used (checked against migration guides)
-- [ ] Conflicts between docs and existing code were surfaced to the user
-- [ ] Anything that could not be verified is explicitly flagged as unverified
+- [ ] 框架和库版本已从依赖文件识别
+- [ ] 框架特定模式已获取官方文档
+- [ ] 所有来源都是官方文档，不是博客文章或训练数据
+- [ ] 代码遵循当前版本文档中展示的模式
+- [ ] 非显然决策包含带完整 URL 的来源引用
+- [ ] 未使用弃用 API（已对照迁移指南检查）
+- [ ] 文档与现有代码之间的冲突已向用户暴露
+- [ ] 任何无法验证的内容已明确标记为未验证

@@ -1,39 +1,39 @@
 # AGENTS.md
 
-This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Antigravity, etc.) when working with code in this repository.
+本文件为 AI 编程代理（Claude Code、Cursor、Copilot、Antigravity 等）在使用本仓库代码时提供指导。
 
-## Repository Overview
+## 仓库概述
 
-A collection of skills for Claude.ai and Claude Code for senior software engineers. Skills are packaged instructions and scripts that extend Claude and your coding agents capabilities.
+面向高级软件工程师的 Claude.ai 和 Claude Code 技能集合。技能是打包的指令和脚本，用于扩展 Claude 和你的编程代理的能力。
 
-## OpenCode Integration
+## OpenCode 集成
 
-OpenCode uses a **skill-driven execution model** powered by the `skill` tool and this repository's `/skills` directory.
+OpenCode 使用由 `skill` 工具和本仓库 `/skills` 目录驱动的**技能驱动执行模型**。
 
-### Core Rules
+### 核心规则
 
-- If a task matches a skill, you MUST invoke it
-- Skills are located in `skills/<skill-name>/SKILL.md`
-- Never implement directly if a skill applies
-- Always follow the skill instructions exactly (do not partially apply them)
+- 如果任务匹配某个技能，你必须调用它
+- 技能位于 `skills/<skill-name>/SKILL.md`
+- 如果有适用的技能，永远不要直接实现
+- 始终严格按照技能指令执行（不要部分应用）
 
-### Intent → Skill Mapping
+### 意图 → 技能映射
 
-The agent should automatically map user intent to skills:
+代理应自动将用户意图映射到技能：
 
-- Feature / new functionality → `spec-driven-development`, then `incremental-implementation`, `test-driven-development`
-- Planning / breakdown → `planning-and-task-breakdown`
-- Bug / failure / unexpected behavior → `debugging-and-error-recovery`
-- Code review → `code-review-and-quality`
-- Refactoring / simplification → `code-simplification`
-- API or interface design → `api-and-interface-design`
-- UI work → `frontend-ui-engineering`
+- 功能 / 新功能 → `spec-driven-development`，然后 `incremental-implementation`、`test-driven-development`
+- 规划 / 分解 → `planning-and-task-breakdown`
+- Bug / 故障 / 异常行为 → `debugging-and-error-recovery`
+- 代码审查 → `code-review-and-quality`
+- 重构 / 简化 → `code-simplification`
+- API 或接口设计 → `api-and-interface-design`
+- UI 工作 → `frontend-ui-engineering`
 
-### Lifecycle Mapping (Implicit Commands)
+### 生命周期映射（隐式命令）
 
-OpenCode does not support slash commands like `/spec` or `/plan`.
+OpenCode 不支持 `/spec` 或 `/plan` 这样的斜杠命令。
 
-Instead, the agent must internally follow this lifecycle:
+相反，代理必须在内部遵循此生命周期：
 
 - DEFINE → `spec-driven-development`
 - PLAN → `planning-and-task-breakdown`
@@ -42,144 +42,144 @@ Instead, the agent must internally follow this lifecycle:
 - REVIEW → `code-review-and-quality`
 - SHIP → `shipping-and-launch`
 
-### Execution Model
+### 执行模型
 
-For every request:
+对于每个请求：
 
-1. Determine if any skill applies (even 1% chance)
-2. Invoke the appropriate skill using the `skill` tool
-3. Follow the skill workflow strictly
-4. Only proceed to implementation after required steps (spec, plan, etc.) are complete
+1. 判断是否有任何技能适用（哪怕只有 1% 的可能）
+2. 使用 `skill` 工具调用适当的技能
+3. 严格遵循技能工作流
+4. 只有在必需步骤（规格、计划等）完成后才能进入实现阶段
 
-### Anti-Rationalization
+### 反自我辩解
 
-The following thoughts are incorrect and must be ignored:
+以下想法是错误的，必须忽略：
 
-- "This is too small for a skill"
-- "I can just quickly implement this"
-- "I’ll gather context first"
+- "这太小了，不需要用技能"
+- "我可以直接快速实现"
+- "我先收集一下上下文"
 
-Correct behavior:
+正确行为：
 
-- Always check for and use skills first
+- 始终先检查并使用技能
 
-This ensures OpenCode behaves similarly to Claude Code with full workflow enforcement.
+这确保 OpenCode 的行为与 Claude Code 类似，具有完整的工作流强制执行。
 
-## Orchestration: Personas, Skills, and Commands
+## 编排：角色、技能和命令
 
-This repo has three composable layers. They have different jobs and should not be confused:
+本仓库有三个可组合的层。它们有不同的职责，不应混淆：
 
-- **Skills** (`skills/<name>/SKILL.md`) — workflows with steps and exit criteria. The *how*. Mandatory hops when an intent matches.
-- **Personas** (`agents/<role>.md`) — roles with a perspective and an output format. The *who*.
-- **Slash commands** (`.claude/commands/*.md`) — user-facing entry points. The *when*. The orchestration layer.
+- **技能**（`skills/<name>/SKILL.md`）— 包含步骤和退出标准的工作流。是"怎么做"。当意图匹配时必须经过的环节。
+- **角色**（`agents/<role>.md`）— 具有特定视角和输出格式的角色。是"谁来做"。
+- **斜杠命令**（`.claude/commands/*.md`）— 面向用户的入口。是"何时做"。编排层。
 
-Composition rule: **the user (or a slash command) is the orchestrator. Personas do not invoke other personas.** A persona may invoke skills.
+组合规则：**用户（或斜杠命令）是编排者。角色不会调用其他角色。** 一个角色可以调用技能。
 
-The only multi-persona orchestration pattern this repo endorses is **parallel fan-out with a merge step** — used by `/ship` to run `code-reviewer`, `security-auditor`, and `test-engineer` concurrently and synthesize their reports. Do not build a "router" persona that decides which other persona to call; that's the job of slash commands and intent mapping.
+本仓库认可的唯一多角色编排模式是**并行扇出加合并步骤**——由 `/ship` 使用，并发运行 `code-reviewer`、`security-auditor` 和 `test-engineer` 并综合它们的报告。不要构建一个决定调用哪个其他角色的"路由"角色；那是斜杠命令和意图映射的工作。
 
-See [agents/README.md](agents/README.md) for the decision matrix and [references/orchestration-patterns.md](references/orchestration-patterns.md) for the full pattern catalog.
+参见 [agents/README.md](agents/README.md) 了解决策矩阵，参见 [references/orchestration-patterns.md](references/orchestration-patterns.md) 了解完整的模式目录。
 
-**Claude Code interop:** the personas in `agents/` work as Claude Code subagents (auto-discovered from this plugin's `agents/` directory) and as Agent Teams teammates (referenced by name when spawning). Two platform constraints align with our rules: subagents cannot spawn other subagents, and teams cannot nest. Plugin agents silently ignore the `hooks`, `mcpServers`, and `permissionMode` frontmatter fields.
+**Claude Code 互操作：** `agents/` 中的角色可作为 Claude Code 子代理（从此插件的 `agents/` 目录自动发现）和代理团队成员（按名称引用进行生成）。两个平台约束与我们的规则一致：子代理不能生成其他子代理，团队不能嵌套。插件代理会静默忽略 `hooks`、`mcpServers` 和 `permissionMode` frontmatter 字段。
 
-## Creating a New Skill
+## 创建新技能
 
-### Directory Structure
+### 目录结构
 
 ```
 skills/
-  {skill-name}/           # kebab-case directory name
-    SKILL.md              # Required: skill definition
-    scripts/              # Required: executable scripts
-      {script-name}.sh    # Bash scripts (preferred)
-  {skill-name}.zip        # Required: packaged for distribution
+  {skill-name}/           # kebab-case 目录名
+    SKILL.md              # 必需：技能定义
+    scripts/              # 必需：可执行脚本
+      {script-name}.sh    # Bash 脚本（推荐）
+  {skill-name}.zip        # 必需：用于分发的打包文件
 ```
 
-### Naming Conventions
+### 命名约定
 
-- **Skill directory**: `kebab-case` (e.g. `web-quality`)
-- **SKILL.md**: Always uppercase, always this exact filename
-- **Scripts**: `kebab-case.sh` (e.g., `deploy.sh`, `fetch-logs.sh`)
-- **Zip file**: Must match directory name exactly: `{skill-name}.zip`
+- **技能目录**：`kebab-case`（如 `web-quality`）
+- **SKILL.md**：始终大写，始终使用此确切文件名
+- **脚本**：`kebab-case.sh`（如 `deploy.sh`、`fetch-logs.sh`）
+- **Zip 文件**：必须与目录名完全匹配：`{skill-name}.zip`
 
-### SKILL.md Format
+### SKILL.md 格式
 
 ```markdown
 ---
 name: {skill-name}
-description: {One sentence describing when to use this skill. Include trigger phrases like "Deploy my app", "Check logs", etc.}
+description: {一句话描述何时使用此技能。包含触发短语如"Deploy my app"、"Check logs"等。}
 ---
 
-# {Skill Title}
+# {技能标题}
 
-{Brief description of what the skill does.}
+{简要描述技能的作用。}
 
-## How It Works
+## 工作原理
 
-{Numbered list explaining the skill's workflow}
+{编号列表解释技能的工作流}
 
-## Usage
+## 使用方法
 
 ```bash
 bash /mnt/skills/user/{skill-name}/scripts/{script}.sh [args]
 ```
 
-**Arguments:**
-- `arg1` - Description (defaults to X)
+**参数：**
+- `arg1` - 描述（默认为 X）
 
-**Examples:**
-{Show 2-3 common usage patterns}
+**示例：**
+{展示 2-3 个常见用法模式}
 
-## Output
+## 输出
 
-{Show example output users will see}
+{展示用户将看到的示例输出}
 
-## Present Results to User
+## 向用户展示结果
 
-{Template for how Claude should format results when presenting to users}
+{Claude 向用户展示结果时的格式模板}
 
-## Troubleshooting
+## 故障排除
 
-{Common issues and solutions, especially network/permissions errors}
+{常见问题和解决方案，特别是网络/权限错误}
 ```
 
-### Best Practices for Context Efficiency
+### 上下文效率最佳实践
 
-Skills are loaded on-demand — only the skill name and description are loaded at startup. The full `SKILL.md` loads into context only when the agent decides the skill is relevant. To minimize context usage:
+技能按需加载——启动时仅加载技能名称和描述。完整的 `SKILL.md` 仅在代理判断技能相关时才加载到上下文中。为最小化上下文使用：
 
-- **Keep SKILL.md under 500 lines** — put detailed reference material in separate files
-- **Write specific descriptions** — helps the agent know exactly when to activate the skill
-- **Use progressive disclosure** — reference supporting files that get read only when needed
-- **Prefer scripts over inline code** — script execution doesn't consume context (only output does)
-- **File references work one level deep** — link directly from SKILL.md to supporting files
+- **保持 SKILL.md 在 500 行以内** — 将详细参考材料放在单独的文件中
+- **编写具体的描述** — 帮助代理准确知道何时激活技能
+- **使用渐进式展示** — 引用支持文件，仅在需要时才读取
+- **优先使用脚本而非内联代码** — 脚本执行不消耗上下文（仅输出消耗）
+- **文件引用只深入一层** — 从 SKILL.md 直接链接到支持文件
 
-### Script Requirements
+### 脚本要求
 
-- Use `#!/bin/bash` shebang
-- Use `set -e` for fail-fast behavior
-- Write status messages to stderr: `echo "Message" >&2`
-- Write machine-readable output (JSON) to stdout
-- Include a cleanup trap for temp files
-- Reference the script path as `/mnt/skills/user/{skill-name}/scripts/{script}.sh`
+- 使用 `#!/bin/bash` shebang
+- 使用 `set -e` 实现快速失败
+- 将状态消息写入 stderr：`echo "Message" >&2`
+- 将机器可读的输出（JSON）写入 stdout
+- 包含临时文件的清理 trap
+- 脚本路径引用为 `/mnt/skills/user/{skill-name}/scripts/{script}.sh`
 
-### Creating the Zip Package
+### 创建 Zip 包
 
-After creating or updating a skill:
+创建或更新技能后：
 
 ```bash
 cd skills
 zip -r {skill-name}.zip {skill-name}/
 ```
 
-### End-User Installation
+### 最终用户安装
 
-Document these two installation methods for users:
+为用户记录以下两种安装方法：
 
-**Claude Code:**
+**Claude Code：**
 ```bash
 cp -r skills/{skill-name} ~/.claude/skills/
 ```
 
-**claude.ai:**
-Add the skill to project knowledge or paste SKILL.md contents into the conversation.
+**claude.ai：**
+将技能添加到项目知识库，或将 SKILL.md 内容粘贴到对话中。
 
-If the skill requires network access, instruct users to add required domains at `claude.ai/settings/capabilities`.
+如果技能需要网络访问，请指导用户在 `claude.ai/settings/capabilities` 添加所需域名。

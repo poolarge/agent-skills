@@ -1,120 +1,120 @@
-# Agent Personas
+# Agent 人格
 
-Specialist personas that play a single role with a single perspective. Each persona is a Markdown file consumed as a system prompt by your harness (Claude Code, Cursor, Copilot, etc.).
+专精人格只扮演单一角色、持单一视角。每个 persona 是一个 Markdown 文件，由你的运行框架（Claude Code、Cursor、Copilot 等）作为系统提示词消费。
 
-| Persona | Role | Best for |
+| 人格 | 角色 | 最适合 |
 |---------|------|----------|
-| [code-reviewer](code-reviewer.md) | Senior Staff Engineer | Five-axis review before merge |
-| [security-auditor](security-auditor.md) | Security Engineer | Vulnerability detection, OWASP-style audit |
-| [test-engineer](test-engineer.md) | QA Engineer | Test strategy, coverage analysis, Prove-It pattern |
+| [code-reviewer](code-reviewer.md) | 高级主任工程师 | 合并前的五维度审查 |
+| [security-auditor](security-auditor.md) | 安全工程师 | 漏洞检测、OWASP 风格审计 |
+| [test-engineer](test-engineer.md) | QA 工程师 | 测试策略、覆盖率分析、Prove-It 模式 |
 
-## How personas relate to skills and commands
+## 人格与技能、命令的关系
 
-Three layers, each with a distinct job:
+三层结构，各司其职：
 
-| Layer | What it is | Example | Composition role |
+| 层级 | 是什么 | 示例 | 组合角色 |
 |-------|-----------|---------|------------------|
-| **Skill** | A workflow with steps and exit criteria | `code-review-and-quality` | The *how* — invoked from inside a persona or command |
-| **Persona** | A role with a perspective and an output format | `code-reviewer` | The *who* — adopts a viewpoint, produces a report |
-| **Command** | A user-facing entry point | `/review`, `/ship` | The *when* — composes personas and skills |
+| **Skill（技能）** | 包含步骤和退出条件的工作流 | `code-review-and-quality` | *怎么做* — 在人格或命令内部调用 |
+| **Persona（人格）** | 带有视角和输出格式的角色 | `code-reviewer` | *谁来做* — 采用特定视角，产出报告 |
+| **Command（命令）** | 面向用户的入口 | `/review`, `/ship` | *何时做* — 组合人格和技能 |
 
-The user (or a slash command) is the orchestrator. **Personas do not call other personas.** Skills are mandatory hops inside a persona's workflow.
+用户（或斜杠命令）是编排者。**人格不会调用其他人格。** 技能是人格工作流中的必要环节。
 
-## When to use each
+## 何时使用哪个
 
-### Direct persona invocation
-Pick this when you want one perspective on the current change and the user is in the loop.
+### 直接调用人格
+当你需要对当前变更获取单一视角、且用户在参与时，选择此方式。
 
-- "Review this PR" → invoke `code-reviewer` directly
-- "Are there security issues in `auth.ts`?" → invoke `security-auditor` directly
-- "What tests are missing for the checkout flow?" → invoke `test-engineer` directly
+- "Review this PR" → 直接调用 `code-reviewer`
+- "Are there security issues in `auth.ts`?" → 直接调用 `security-auditor`
+- "What tests are missing for the checkout flow?" → 直接调用 `test-engineer`
 
-### Slash command (single persona behind it)
-Pick this when there's a repeatable workflow you'd otherwise re-explain every time.
+### 斜杠命令（单人格封装）
+当你有一个可重复的工作流、且不想每次重新解释时，选择此方式。
 
-- `/review` → wraps `code-reviewer` with the project's review skill
-- `/test` → wraps `test-engineer` with TDD skill
+- `/review` → 封装 `code-reviewer` 与项目的审查技能
+- `/test` → 封装 `test-engineer` 与 TDD 技能
 
-### Slash command (orchestrator — fan-out)
-Pick this only when **independent** investigations can run in parallel and produce reports that a single agent then merges.
+### 斜杠命令（编排者 — 扇出）
+仅当**独立**的调查可以并行运行、并产生由单个 agent 合并的报告时，才选择此方式。
 
-- `/ship` → fans out to `code-reviewer` + `security-auditor` + `test-engineer` in parallel, then synthesizes their reports into a go/no-go decision
+- `/ship` → 并行扇出到 `code-reviewer` + `security-auditor` + `test-engineer`，然后将它们的报告综合为通过/不通过决策
 
-This is the only orchestration pattern this repo endorses. See [references/orchestration-patterns.md](../references/orchestration-patterns.md) for the full pattern catalog and anti-patterns.
+这是本仓库唯一认可的编排模式。完整模式目录和反模式参见 [references/orchestration-patterns.md](../references/orchestration-patterns.md)。
 
-## Decision matrix
+## 决策矩阵
 
 ```
-Is the work a single perspective on a single artifact?
-├── Yes → Direct persona invocation
-└── No  → Are the sub-tasks independent (no shared mutable state, no ordering)?
-         ├── Yes → Slash command with parallel fan-out (e.g. /ship)
-         └── No  → Sequential slash commands run by the user (/spec → /plan → /build → /test → /review)
+工作是否是对单一产物的单一视角？
+├── 是 → 直接调用人格
+└── 否 → 子任务是否独立（无共享可变状态，无顺序依赖）？
+         ├── 是 → 带并行扇出的斜杠命令（如 /ship）
+         └── 否 → 由用户依次运行的斜杠命令（/spec → /plan → /build → /test → /review）
 ```
 
-## Worked example: valid orchestration
+## 实例：有效的编排
 
-`/ship` is the canonical fan-out orchestrator in this repo:
+`/ship` 是本仓库中典型的扇出编排器：
 
 ```
 /ship
-  ├── (parallel) code-reviewer    → review report
-  ├── (parallel) security-auditor → audit report
-  └── (parallel) test-engineer    → coverage report
+  ├── (并行) code-reviewer    → 审查报告
+  ├── (并行) security-auditor → 审计报告
+  └── (并行) test-engineer    → 覆盖率报告
                   ↓
-        merge phase (main agent)
+        合并阶段（主 agent）
                   ↓
-        go/no-go decision + rollback plan
+        通过/不通过决策 + 回滚计划
 ```
 
-Why this works:
-- Each sub-agent operates on the same diff but produces a **different perspective**
-- They have no dependencies on each other → genuine parallelism, real wall-clock savings
-- Each runs in a fresh context window → main session stays uncluttered
-- The merge step is small and benefits from full context, so it stays in the main agent
+为什么有效：
+- 每个子 agent 操作同一个 diff，但产出**不同的视角**
+- 它们之间没有依赖 → 真正的并行，真实的挂钟时间节省
+- 每个在新的上下文窗口中运行 → 主会话保持整洁
+- 合并步骤很小且受益于完整上下文，因此留在主 agent 中
 
-## Worked example: invalid orchestration (do not build this)
+## 实例：无效的编排（不要这样构建）
 
-A `meta-orchestrator` persona whose job is "decide which other persona to call":
+一个 `meta-orchestrator` 人格，其职责是"决定调用哪个人格"：
 
 ```
 /work-on-pr → meta-orchestrator
-                  ↓ (decides "this needs a review")
+                  ↓ (决定"这需要审查")
               code-reviewer
-                  ↓ (returns)
-              meta-orchestrator (paraphrases result)
+                  ↓ (返回)
+              meta-orchestrator (转述结果)
                   ↓
-              user
+              用户
 ```
 
-Why this fails:
-- Pure routing layer with no domain value
-- Adds two paraphrasing hops → information loss + 2× token cost
-- The user already knows they want a review; let them call `/review` directly
-- Replicates work that slash commands and `AGENTS.md` intent-mapping already do
+为什么失败：
+- 纯路由层，没有领域价值
+- 增加了两次转述环节 → 信息丢失 + 2 倍 token 成本
+- 用户已经知道自己想要审查；让他们直接调用 `/review`
+- 复制了斜杠命令和 `AGENTS.md` 意图映射已经在做的工作
 
-## Rules for personas
+## 人格规则
 
-1. A persona is a single role with a single output format. If you find yourself adding a second role, create a second persona.
-2. **Personas do not invoke other personas.** Composition is the job of slash commands or the user. On Claude Code this is also a hard platform constraint — *"subagents cannot spawn other subagents"* — so the rule is enforced for you.
-3. A persona may invoke skills (the *how*).
-4. Every persona file ends with a "Composition" block stating where it fits.
+1. 人格是单一角色、单一输出格式。如果你发现自己要加入第二个角色，请创建第二个人格。
+2. **人格不会调用其他人格。** 组合是斜杠命令或用户的职责。在 Claude Code 上这也是硬性平台约束——*"subagents cannot spawn other subagents"*——所以这条规则自然生效。
+3. 人格可以调用技能（*怎么做*）。
+4. 每个人格文件末尾都有"Composition"块，说明其适用位置。
 
-## Claude Code interop
+## Claude Code 互操作
 
-The personas in this repo are designed to work as Claude Code subagents and as Agent Teams teammates without modification:
+本仓库中的人格设计为无需修改即可作为 Claude Code 子 agent 和 Agent Teams 队友使用：
 
-- **As subagents:** auto-discovered when this plugin is enabled (no path config needed). Use the Agent tool with `subagent_type: code-reviewer` (or `security-auditor`, `test-engineer`). `/ship` is the canonical example.
-- **As Agent Teams teammates** (experimental, requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`): reference the same persona name when spawning a teammate. The persona's body is **appended to** the teammate's system prompt as additional instructions (not a replacement), so your persona text sits on top of the team-coordination instructions the lead installs (SendMessage, task-list tools, etc.).
+- **作为子 agent：** 启用此插件时自动发现（无需路径配置）。使用 Agent 工具并指定 `subagent_type: code-reviewer`（或 `security-auditor`、`test-engineer`）。`/ship` 是典型示例。
+- **作为 Agent Teams 队友**（实验性，需要 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`）：在生成队友时引用相同的人格名称。人格正文会**追加到**队友的系统提示词中作为额外指令（而非替换），因此你的人格文本叠加在主 agent 安装的团队协调指令（SendMessage、task-list 工具等）之上。
 
-Subagents only report results back to the main agent. Agent Teams let teammates message each other directly. Use subagents when reports are enough; use Agent Teams when sub-agents need to challenge each other's findings (e.g. competing-hypothesis debugging). See [references/orchestration-patterns.md](../references/orchestration-patterns.md) for the full mapping.
+子 agent 只将结果报告回主 agent。Agent Teams 允许队友之间直接消息。当报告足够时使用子 agent；当子 agent 需要相互质疑发现时（例如竞争假设调试）使用 Agent Teams。完整映射参见 [references/orchestration-patterns.md](../references/orchestration-patterns.md)。
 
-Plugin agents do not support `hooks`, `mcpServers`, or `permissionMode` frontmatter — those fields are silently ignored. Avoid relying on them when authoring new personas here.
+插件 agent 不支持 `hooks`、`mcpServers` 或 `permissionMode` frontmatter 字段——这些字段会被静默忽略。在此编写新人格时不要依赖它们。
 
-## Adding a new persona
+## 添加新人格
 
-1. Create `agents/<role>.md` with the same frontmatter format used by existing personas.
-2. Define the role, scope, output format, and rules.
-3. Add a **Composition** block at the bottom (Invoke directly when / Invoke via / Do not invoke from another persona).
-4. Add the persona to the table at the top of this file.
-5. If the persona enables a new orchestration pattern, document it in `references/orchestration-patterns.md` rather than inventing the pattern in the persona file itself.
+1. 创建 `agents/<role>.md`，使用与现有人格相同的 frontmatter 格式。
+2. 定义角色、范围、输出格式和规则。
+3. 在底部添加 **Composition** 块（何时直接调用 / 通过什么命令调用 / 不要从其他人格调用）。
+4. 将人格添加到本文件顶部的表格中。
+5. 如果该人格启用了新的编排模式，在 `references/orchestration-patterns.md` 中记录，而不是在人格文件本身中发明模式。

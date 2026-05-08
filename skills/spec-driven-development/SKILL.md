@@ -1,200 +1,200 @@
 ---
 name: spec-driven-development
-description: Creates specs before coding. Use when starting a new project, feature, or significant change and no specification exists yet. Use when requirements are unclear, ambiguous, or only exist as a vague idea.
+description: 在编写代码之前创建规格说明。当开始新项目、新功能或重大变更且尚无规格说明时使用。当需求不清晰、模糊或仅作为模糊想法存在时使用。
 ---
 
-# Spec-Driven Development
+# 规格驱动开发
 
-## Overview
+## 概述
 
-Write a structured specification before writing any code. The spec is the shared source of truth between you and the human engineer — it defines what we're building, why, and how we'll know it's done. Code without a spec is guessing.
+在编写任何代码之前，先编写结构化的规格说明。规格说明是你和人类工程师之间的共同事实来源——它定义了我们要构建什么、为什么构建，以及如何确认完成。没有规格的代码就是猜测。
 
-## When to Use
+## 何时使用
 
-- Starting a new project or feature
-- Requirements are ambiguous or incomplete
-- The change touches multiple files or modules
-- You're about to make an architectural decision
-- The task would take more than 30 minutes to implement
+- 开始新项目或新功能
+- 需求模糊或不完整
+- 变更涉及多个文件或模块
+- 即将做出架构决策
+- 实现任务预计超过 30 分钟
 
-**When NOT to use:** Single-line fixes, typo corrections, or changes where requirements are unambiguous and self-contained.
+**何时不使用：** 单行修复、拼写纠正，或需求明确且自包含的变更。
 
-## The Gated Workflow
+## 门控工作流
 
-Spec-driven development has four phases. Do not advance to the next phase until the current one is validated.
+规格驱动开发有四个阶段。在当前阶段验证通过之前，不要推进到下一阶段。
 
 ```
 SPECIFY ──→ PLAN ──→ TASKS ──→ IMPLEMENT
    │          │        │          │
    ▼          ▼        ▼          ▼
- Human      Human    Human      Human
- reviews    reviews  reviews    reviews
+ 人类       人类     人类       人类
+ 评审       评审     评审       评审
 ```
 
-### Phase 1: Specify
+### 阶段 1：规格定义
 
-Start with a high-level vision. Ask the human clarifying questions until requirements are concrete.
+从高层愿景开始。向人类提出澄清问题，直到需求变得具体。
 
-**Surface assumptions immediately.** Before writing any spec content, list what you're assuming:
+**立即暴露假设。** 在编写任何规格内容之前，列出你正在做的假设：
 
 ```
-ASSUMPTIONS I'M MAKING:
-1. This is a web application (not native mobile)
-2. Authentication uses session-based cookies (not JWT)
-3. The database is PostgreSQL (based on existing Prisma schema)
-4. We're targeting modern browsers only (no IE11)
-→ Correct me now or I'll proceed with these.
+我正在做的假设：
+1. 这是一个 Web 应用（不是原生移动应用）
+2. 认证使用基于会话的 cookie（不是 JWT）
+3. 数据库是 PostgreSQL（基于现有 Prisma schema）
+4. 我们只针对现代浏览器（不支持 IE11）
+→ 现在纠正我，否则我将按这些假设继续。
 ```
 
-Don't silently fill in ambiguous requirements. The spec's entire purpose is to surface misunderstandings *before* code gets written — assumptions are the most dangerous form of misunderstanding.
+不要悄悄填补模糊的需求。规格的全部目的就是在代码编写*之前*暴露误解——假设是最危险的误解形式。
 
-**Write a spec document covering these six core areas:**
+**编写涵盖以下六个核心领域的规格文档：**
 
-1. **Objective** — What are we building and why? Who is the user? What does success look like?
+1. **目标** — 我们在构建什么，为什么？用户是谁？成功的定义是什么？
 
-2. **Commands** — Full executable commands with flags, not just tool names.
+2. **命令** — 带有标志的完整可执行命令，而不仅是工具名称。
    ```
-   Build: npm run build
-   Test: npm test -- --coverage
-   Lint: npm run lint --fix
-   Dev: npm run dev
-   ```
-
-3. **Project Structure** — Where source code lives, where tests go, where docs belong.
-   ```
-   src/           → Application source code
-   src/components → React components
-   src/lib        → Shared utilities
-   tests/         → Unit and integration tests
-   e2e/           → End-to-end tests
-   docs/          → Documentation
+   构建: npm run build
+   测试: npm test -- --coverage
+   代码检查: npm run lint --fix
+   开发: npm run dev
    ```
 
-4. **Code Style** — One real code snippet showing your style beats three paragraphs describing it. Include naming conventions, formatting rules, and examples of good output.
+3. **项目结构** — 源代码在哪里，测试在哪里，文档在哪里。
+   ```
+   src/           → 应用源代码
+   src/components → React 组件
+   src/lib        → 共享工具函数
+   tests/         → 单元和集成测试
+   e2e/           → 端到端测试
+   docs/          → 文档
+   ```
 
-5. **Testing Strategy** — What framework, where tests live, coverage expectations, which test levels for which concerns.
+4. **代码风格** — 一个展示你风格的真实代码片段胜过三段描述。包括命名约定、格式化规则和良好输出的示例。
 
-6. **Boundaries** — Three-tier system:
-   - **Always do:** Run tests before commits, follow naming conventions, validate inputs
-   - **Ask first:** Database schema changes, adding dependencies, changing CI config
-   - **Never do:** Commit secrets, edit vendor directories, remove failing tests without approval
+5. **测试策略** — 使用什么框架，测试放在哪里，覆盖率期望，不同测试级别对应不同关注点。
 
-**Spec template:**
+6. **边界** — 三层体系：
+   - **始终做：** 提交前运行测试，遵循命名约定，验证输入
+   - **先问再做：** 数据库 schema 变更，添加依赖，更改 CI 配置
+   **绝不做：** 提交密钥，编辑 vendor 目录，未经批准删除失败的测试
+
+**规格模板：**
 
 ```markdown
-# Spec: [Project/Feature Name]
+# 规格：[项目/功能名称]
 
-## Objective
-[What we're building and why. User stories or acceptance criteria.]
+## 目标
+[构建什么以及为什么。用户故事或验收标准。]
 
-## Tech Stack
-[Framework, language, key dependencies with versions]
+## 技术栈
+[框架、语言、关键依赖及其版本]
 
-## Commands
-[Build, test, lint, dev — full commands]
+## 命令
+[构建、测试、代码检查、开发 — 完整命令]
 
-## Project Structure
-[Directory layout with descriptions]
+## 项目结构
+[目录布局及说明]
 
-## Code Style
-[Example snippet + key conventions]
+## 代码风格
+[示例代码片段 + 关键约定]
 
-## Testing Strategy
-[Framework, test locations, coverage requirements, test levels]
+## 测试策略
+[框架、测试位置、覆盖率要求、测试级别]
 
-## Boundaries
-- Always: [...]
-- Ask first: [...]
-- Never: [...]
+## 边界
+- 始终做: [...]
+- 先问再做: [...]
+- 绝不做: [...]
 
-## Success Criteria
-[How we'll know this is done — specific, testable conditions]
+## 成功标准
+[如何确认完成 — 具体、可测试的条件]
 
-## Open Questions
-[Anything unresolved that needs human input]
+## 待解决问题
+[需要人类输入的未解决问题]
 ```
 
-**Reframe instructions as success criteria.** When receiving vague requirements, translate them into concrete conditions:
+**将指令重构为成功标准。** 当收到模糊需求时，将其转化为具体条件：
 
 ```
-REQUIREMENT: "Make the dashboard faster"
+需求："让仪表盘更快"
 
-REFRAMED SUCCESS CRITERIA:
-- Dashboard LCP < 2.5s on 4G connection
-- Initial data load completes in < 500ms
-- No layout shift during load (CLS < 0.1)
-→ Are these the right targets?
+重构为成功标准：
+- 仪表盘 LCP < 2.5s（4G 连接）
+- 初始数据加载在 < 500ms 内完成
+- 加载期间无布局偏移（CLS < 0.1）
+→ 这些是正确的目标吗？
 ```
 
-This lets you loop, retry, and problem-solve toward a clear goal rather than guessing what "faster" means.
+这让你能够循环、重试和解决明确目标，而不是猜测"更快"的含义。
 
-### Phase 2: Plan
+### 阶段 2：计划
 
-With the validated spec, generate a technical implementation plan:
+基于验证过的规格，生成技术实现计划：
 
-1. Identify the major components and their dependencies
-2. Determine the implementation order (what must be built first)
-3. Note risks and mitigation strategies
-4. Identify what can be built in parallel vs. what must be sequential
-5. Define verification checkpoints between phases
+1. 识别主要组件及其依赖关系
+2. 确定实现顺序（必须先构建什么）
+3. 记录风险和缓解策略
+4. 识别哪些可以并行构建，哪些必须顺序执行
+5. 在各阶段之间定义验证检查点
 
-The plan should be reviewable: the human should be able to read it and say "yes, that's the right approach" or "no, change X."
+计划应该可审查：人类应该能够阅读并说"是的，这是正确的方法"或"不，修改 X"。
 
-### Phase 3: Tasks
+### 阶段 3：任务
 
-Break the plan into discrete, implementable tasks:
+将计划分解为离散的、可实现的任务：
 
-- Each task should be completable in a single focused session
-- Each task has explicit acceptance criteria
-- Each task includes a verification step (test, build, manual check)
-- Tasks are ordered by dependency, not by perceived importance
-- No task should require changing more than ~5 files
+- 每个任务应在一个专注的会话中可完成
+- 每个任务有明确的验收标准
+- 每个任务包含验证步骤（测试、构建、手动检查）
+- 任务按依赖关系排序，而非按感知的重要性排序
+- 任何任务不应涉及修改超过约 5 个文件
 
-**Task template:**
+**任务模板：**
 ```markdown
-- [ ] Task: [Description]
-  - Acceptance: [What must be true when done]
-  - Verify: [How to confirm — test command, build, manual check]
-  - Files: [Which files will be touched]
+- [ ] 任务：[描述]
+  - 验收：[完成时必须满足的条件]
+  - 验证：[如何确认 — 测试命令、构建、手动检查]
+  - 文件：[将涉及的文件]
 ```
 
-### Phase 4: Implement
+### 阶段 4：实现
 
-Execute tasks one at a time following `incremental-implementation` and `test-driven-development` skills. Use `context-engineering` to load the right spec sections and source files at each step rather than flooding the agent with the entire spec.
+按照 `incremental-implementation` 和 `test-driven-development` 技能逐个执行任务。使用 `context-engineering` 在每个步骤加载正确的规格部分和源文件，而不是用整个规格淹没 agent。
 
-## Keeping the Spec Alive
+## 保持规格活跃
 
-The spec is a living document, not a one-time artifact:
+规格是活文档，不是一次性产物：
 
-- **Update when decisions change** — If you discover the data model needs to change, update the spec first, then implement.
-- **Update when scope changes** — Features added or cut should be reflected in the spec.
-- **Commit the spec** — The spec belongs in version control alongside the code.
-- **Reference the spec in PRs** — Link back to the spec section that each PR implements.
+- **决策变更时更新** — 如果你发现数据模型需要变更，先更新规格，再实现。
+- **范围变更时更新** — 新增或削减的功能应反映在规格中。
+- **提交规格** — 规格与代码一起纳入版本控制。
+- **在 PR 中引用规格** — 链接回每个 PR 实现的规格部分。
 
-## Common Rationalizations
+## 常见合理化说辞
 
-| Rationalization | Reality |
+| 合理化说辞 | 现实 |
 |---|---|
-| "This is simple, I don't need a spec" | Simple tasks don't need *long* specs, but they still need acceptance criteria. A two-line spec is fine. |
-| "I'll write the spec after I code it" | That's documentation, not specification. The spec's value is in forcing clarity *before* code. |
-| "The spec will slow us down" | A 15-minute spec prevents hours of rework. Waterfall in 15 minutes beats debugging in 15 hours. |
-| "Requirements will change anyway" | That's why the spec is a living document. An outdated spec is still better than no spec. |
-| "The user knows what they want" | Even clear requests have implicit assumptions. The spec surfaces those assumptions. |
+| "这很简单，不需要规格" | 简单任务不需要*长*规格，但仍需要验收标准。两行规格就够了。 |
+| "我写完代码再写规格" | 那是文档，不是规格。规格的价值在于在代码之前强制明确。 |
+| "规格会拖慢我们" | 15 分钟的规格避免了数小时的返工。15 分钟的瀑布流胜过 15 小时的调试。 |
+| "需求反正会变" | 这正是规格是活文档的原因。过时的规格仍比没有规格好。 |
+| "用户知道自己想要什么" | 即使明确的需求也有隐含假设。规格暴露这些假设。 |
 
-## Red Flags
+## 危险信号
 
-- Starting to write code without any written requirements
-- Asking "should I just start building?" before clarifying what "done" means
-- Implementing features not mentioned in any spec or task list
-- Making architectural decisions without documenting them
-- Skipping the spec because "it's obvious what to build"
+- 没有任何书面需求就开始写代码
+- 在澄清"完成"的含义之前就问"我应该直接开始构建吗？"
+- 实现规格或任务列表中未提及的功能
+- 做出架构决策但没有记录
+- 因为"显然要构建什么"而跳过规格
 
-## Verification
+## 验证
 
-Before proceeding to implementation, confirm:
+在推进到实现之前，确认：
 
-- [ ] The spec covers all six core areas
-- [ ] The human has reviewed and approved the spec
-- [ ] Success criteria are specific and testable
-- [ ] Boundaries (Always/Ask First/Never) are defined
-- [ ] The spec is saved to a file in the repository
+- [ ] 规格覆盖了所有六个核心领域
+- [ ] 人类已审查并批准规格
+- [ ] 成功标准具体且可测试
+- [ ] 边界（始终做/先问再做/绝不做）已定义
+- [ ] 规格已保存到仓库中的文件

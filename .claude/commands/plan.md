@@ -1,16 +1,16 @@
 ---
-description: Break work into small verifiable tasks with acceptance criteria and dependency ordering
+description: 将工作分解为带有验收标准和依赖排序的小型可验证任务
 ---
 
-Invoke the agent-skills:planning-and-task-breakdown skill.
+调用 agent-skills:planning-and-task-breakdown 技能。
 
-Read the existing spec (SPEC.md or equivalent) and the relevant codebase sections. Then:
+阅读现有规范（SPEC.md 或等效文件）和相关代码库部分。然后：
 
-1. Enter plan mode — read only, no code changes
-2. Identify the dependency graph between components
-3. Slice work vertically (one complete path per task, not horizontal layers)
-4. Write tasks with acceptance criteria and verification steps
-5. Add checkpoints between phases
-6. Present the plan for human review
+1. 进入规划模式——仅读取，不做代码修改
+2. 识别组件之间的依赖图
+3. 垂直切分工作（每个任务一条完整路径，而非水平分层）
+4. 编写带有验收标准和验证步骤的任务
+5. 在阶段之间添加检查点
+6. 将计划呈现给人类审查
 
-Save the plan to tasks/plan.md and task list to tasks/todo.md.
+将计划保存到 tasks/plan.md，任务列表保存到 tasks/todo.md。

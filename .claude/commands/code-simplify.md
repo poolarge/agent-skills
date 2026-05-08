@@ -1,22 +1,22 @@
 ---
-description: Simplify code for clarity and maintainability — reduce complexity without changing behavior
+description: 简化代码以提升清晰度和可维护性——在不改变行为的前提下降低复杂度
 ---
 
-Invoke the agent-skills:code-simplification skill.
+调用 agent-skills:code-simplification 技能。
 
-Simplify recently changed code (or the specified scope) while preserving exact behavior:
+在保留完全相同行为的前提下简化最近更改的代码（或指定范围）：
 
-1. Read CLAUDE.md and study project conventions
-2. Identify the target code — recent changes unless a broader scope is specified
-3. Understand the code's purpose, callers, edge cases, and test coverage before touching it
-4. Scan for simplification opportunities:
-   - Deep nesting → guard clauses or extracted helpers
-   - Long functions → split by responsibility
-   - Nested ternaries → if/else or switch
-   - Generic names → descriptive names
-   - Duplicated logic → shared functions
-   - Dead code → remove after confirming
-5. Apply each simplification incrementally — run tests after each change
-6. Verify all tests pass, the build succeeds, and the diff is clean
+1. 读取 CLAUDE.md 并学习项目约定
+2. 确定目标代码——除非指定更广范围，默认为最近更改
+3. 在动手前理解代码的目的、调用者、边界情况和测试覆盖
+4. 扫描简化机会：
+   - 深层嵌套 → 卫语句或提取辅助函数
+   - 长函数 → 按职责拆分
+   - 嵌套三元 → if/else 或 switch
+   - 泛化命名 → 描述性命名
+   - 重复逻辑 → 共享函数
+   - 死代码 → 确认后移除
+5. 逐步应用每个简化——每次更改后运行测试
+6. 验证所有测试通过、构建成功、diff 干净
 
-If tests fail after a simplification, revert that change and reconsider. Use `code-review-and-quality` to review the result.
+如果简化后测试失败，还原该更改并重新考虑。使用 `code-review-and-quality` 审查结果。

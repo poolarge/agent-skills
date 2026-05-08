@@ -1,18 +1,18 @@
 ---
-description: Implement the next task incrementally — build, test, verify, commit
+description: 逐步实现下一个任务——构建、测试、验证、提交
 ---
 
-Invoke the agent-skills:incremental-implementation skill alongside agent-skills:test-driven-development.
+调用 agent-skills:incremental-implementation 技能，配合 agent-skills:test-driven-development。
 
-Pick the next pending task from the plan. For each task:
+从计划中选取下一个待办任务。对每个任务：
 
-1. Read the task's acceptance criteria
-2. Load relevant context (existing code, patterns, types)
-3. Write a failing test for the expected behavior (RED)
-4. Implement the minimum code to pass the test (GREEN)
-5. Run the full test suite to check for regressions
-6. Run the build to verify compilation
-7. Commit with a descriptive message
-8. Mark the task complete and move to the next one
+1. 读取任务的验收标准
+2. 加载相关上下文（现有代码、模式、类型）
+3. 为预期行为编写失败的测试（RED）
+4. 实现最小代码使测试通过（GREEN）
+5. 运行完整测试套件检查回归
+6. 运行构建验证编译
+7. 以描述性消息提交
+8. 标记任务完成并转向下一个
 
-If any step fails, follow the agent-skills:debugging-and-error-recovery skill.
+如果任何步骤失败，遵循 agent-skills:debugging-and-error-recovery 技能。

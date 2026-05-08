@@ -1,110 +1,110 @@
-# Getting Started with agent-skills
+# agent-skills 入门指南
 
-agent-skills works with any AI coding agent that accepts Markdown instructions. This guide covers the universal approach. For tool-specific setup, see the dedicated guides.
+agent-skills 适用于任何接受 Markdown 指令的 AI 编程代理。本指南介绍通用方法。针对特定工具的配置，请参阅对应的专用指南。
 
-## How Skills Work
+## Skill 的工作原理
 
-Each skill is a Markdown file (`SKILL.md`) that describes a specific engineering workflow. When loaded into an agent's context, the agent follows the workflow — including verification steps, anti-patterns to avoid, and exit criteria.
+每个 skill 都是一个 Markdown 文件（`SKILL.md`），描述了特定的工程工作流。当加载到代理的上下文中时，代理会遵循该工作流——包括验证步骤、需要避免的反模式以及退出标准。
 
-**Skills are not reference docs.** They're step-by-step processes the agent follows.
+**Skill 不是参考文档。** 它们是代理遵循的逐步流程。
 
-## Quick Start (Any Agent)
+## 快速开始（任何代理）
 
-### 1. Clone the repository
+### 1. 克隆仓库
 
 ```bash
 git clone https://github.com/addyosmani/agent-skills.git
 ```
 
-### 2. Choose a skill
+### 2. 选择一个 skill
 
-Browse the `skills/` directory. Each subdirectory contains a `SKILL.md` with:
-- **When to use** — triggers that indicate this skill applies
-- **Process** — step-by-step workflow
-- **Verification** — how to confirm the work is done
-- **Common rationalizations** — excuses the agent might use to skip steps
-- **Red flags** — signs the skill is being violated
+浏览 `skills/` 目录。每个子目录包含一个 `SKILL.md`，其中包括：
+- **何时使用** — 表明该 skill 适用的触发条件
+- **流程** — 逐步工作流
+- **验证** — 如何确认工作已完成
+- **常见自我辩解** — 代理可能用来跳过步骤的借口
+- **红旗信号** — 表明 skill 正在被违反的迹象
 
-### 3. Load the skill into your agent
+### 3. 将 skill 加载到代理中
 
-Copy the relevant `SKILL.md` content into your agent's system prompt, rules file, or conversation. The most common approaches:
+将相关的 `SKILL.md` 内容复制到代理的系统提示、规则文件或对话中。最常见的方法：
 
-**System prompt:** Paste the skill content at the start of the session.
+**系统提示：** 在会话开始时粘贴 skill 内容。
 
-**Rules file:** Add skill content to your project's rules file (CLAUDE.md, .cursorrules, etc.).
+**规则文件：** 将 skill 内容添加到项目的规则文件（CLAUDE.md、.cursorrules 等）中。
 
-**Conversation:** Reference the skill when giving instructions: "Follow the test-driven-development process for this change."
+**对话：** 在给出指令时引用 skill："按照 test-driven-development 流程处理此变更。"
 
-### 4. Use the meta-skill for discovery
+### 4. 使用 meta-skill 进行发现
 
-Start with the `using-agent-skills` skill loaded. It contains a flowchart that maps task types to the appropriate skill.
+首先加载 `using-agent-skills` skill。它包含一个流程图，将任务类型映射到相应的 skill。
 
-## Recommended Setup
+## 推荐配置
 
-### Minimal (Start here)
+### 最小配置（从这里开始）
 
-Load three essential skills into your rules file:
+将三个核心 skill 加载到规则文件中：
 
-1. **spec-driven-development** — For defining what to build
-2. **test-driven-development** — For proving it works
-3. **code-review-and-quality** — For verifying quality before merge
+1. **spec-driven-development** — 用于定义要构建什么
+2. **test-driven-development** — 用于证明代码可以正常工作
+3. **code-review-and-quality** — 用于在合并前验证质量
 
-These three cover the most critical quality gaps in AI-assisted development.
+这三个 skill 覆盖了 AI 辅助开发中最关键的质量缺口。
 
-### Full Lifecycle
+### 完整生命周期
 
-For comprehensive coverage, load skills by phase:
-
-```
-Starting a project:  spec-driven-development → planning-and-task-breakdown
-During development:  incremental-implementation + test-driven-development
-Before merge:        code-review-and-quality + security-and-hardening
-Before deploy:       shipping-and-launch
-```
-
-### Context-Aware Loading
-
-Don't load all skills at once — it wastes context. Load skills relevant to the current task:
-
-- Working on UI? Load `frontend-ui-engineering`
-- Debugging? Load `debugging-and-error-recovery`
-- Setting up CI? Load `ci-cd-and-automation`
-
-## Skill Anatomy
-
-Every skill follows the same structure:
+如需全面覆盖，按阶段加载 skill：
 
 ```
-YAML frontmatter (name, description)
-├── Overview — What this skill does
-├── When to Use — Triggers and conditions
-├── Core Process — Step-by-step workflow
-├── Examples — Code samples and patterns
-├── Common Rationalizations — Excuses and rebuttals
-├── Red Flags — Signs the skill is being violated
-└── Verification — Exit criteria checklist
+启动项目:  spec-driven-development → planning-and-task-breakdown
+开发阶段:  incremental-implementation + test-driven-development
+合并之前:  code-review-and-quality + security-and-hardening
+部署之前:  shipping-and-launch
 ```
 
-See [skill-anatomy.md](skill-anatomy.md) for the full specification.
+### 按需上下文加载
 
-## Using Agents
+不要一次加载所有 skill —— 这会浪费上下文。只加载与当前任务相关的 skill：
 
-The `agents/` directory contains pre-configured agent personas:
+- 做 UI 工作？加载 `frontend-ui-engineering`
+- 调试？加载 `debugging-and-error-recovery`
+- 搭建 CI？加载 `ci-cd-and-automation`
 
-| Agent | Purpose |
-|-------|---------|
-| `code-reviewer.md` | Five-axis code review |
-| `test-engineer.md` | Test strategy and writing |
-| `security-auditor.md` | Vulnerability detection |
+## Skill 结构
 
-Load an agent definition when you need specialized review. For example, ask your coding agent to "review this change using the code-reviewer agent persona" and provide the agent definition.
+每个 skill 遵循相同的结构：
 
-## Using Commands
+```
+YAML 前置信息（名称、描述）
+├── 概述 — 此 skill 做什么
+├── 何时使用 — 触发条件和适用场景
+├── 核心流程 — 逐步工作流
+├── 示例 — 代码示例和模式
+├── 常见自我辩解 — 借口和反驳
+├── 红旗信号 — 表明 skill 正在被违反的迹象
+└── 验证 — 退出标准检查清单
+```
 
-The `.claude/commands/` directory contains slash commands for Claude Code:
+完整规范请参见 [skill-anatomy.md](skill-anatomy.md)。
 
-| Command | Skill Invoked |
-|---------|---------------|
+## 使用 Agent
+
+`agents/` 目录包含预配置的代理角色：
+
+| Agent | 用途 |
+|-------|------|
+| `code-reviewer.md` | 五维度代码审查 |
+| `test-engineer.md` | 测试策略和编写 |
+| `security-auditor.md` | 漏洞检测 |
+
+当需要专业审查时加载代理定义。例如，让编程代理"使用 code-reviewer 代理角色审查此变更"并提供代理定义。
+
+## 使用命令
+
+`.claude/commands/` 目录包含 Claude Code 的斜杠命令：
+
+| 命令 | 调用的 Skill |
+|------|-------------|
 | `/spec` | spec-driven-development |
 | `/plan` | planning-and-task-breakdown |
 | `/build` | incremental-implementation + test-driven-development |
@@ -112,31 +112,31 @@ The `.claude/commands/` directory contains slash commands for Claude Code:
 | `/review` | code-review-and-quality |
 | `/ship` | shipping-and-launch |
 
-## Using References
+## 使用参考资料
 
-The `references/` directory contains supplementary checklists:
+`references/` 目录包含补充检查清单：
 
-| Reference | Use With |
-|-----------|----------|
+| 参考资料 | 配合使用 |
+|----------|----------|
 | `testing-patterns.md` | test-driven-development |
 | `performance-checklist.md` | performance-optimization |
 | `security-checklist.md` | security-and-hardening |
 | `accessibility-checklist.md` | frontend-ui-engineering |
 
-Load a reference when you need detailed patterns beyond what the skill covers.
+当需要 skill 未涵盖的详细模式时，加载参考资料。
 
-## Spec and task artifacts
+## 规格和任务工件
 
-The `/spec` and `/plan` commands create working artifacts (`SPEC.md`, `tasks/plan.md`, `tasks/todo.md`). Treat them as **living documents** while the work is in progress:
+`/spec` 和 `/plan` 命令会创建工作工件（`SPEC.md`、`tasks/plan.md`、`tasks/todo.md`）。在工作进行期间，将它们视为**活文档**：
 
-- Keep them in version control during development so the human and the agent have a shared source of truth.
-- Update them when scope or decisions change.
-- If your repo doesn’t want these files long‑term, delete them before merge or add the folder to `.gitignore` — the workflow doesn’t require them to be permanent.
+- 在开发过程中将它们保留在版本控制中，以便人类和代理拥有共同的真相来源。
+- 当范围或决策发生变化时更新它们。
+- 如果你的仓库不需要长期保留这些文件，可以在合并前删除或将该文件夹添加到 `.gitignore` —— 工作流并不要求它们永久存在。
 
-## Tips
+## 提示
 
-1. **Start with spec-driven-development** for any non-trivial work
-2. **Always load test-driven-development** when writing code
-3. **Don't skip verification steps** — they're the whole point
-4. **Load skills selectively** — more context isn't always better
-5. **Use the agents for review** — different perspectives catch different issues
+1. **对于任何非简单工作，从 spec-driven-development 开始**
+2. **编写代码时始终加载 test-driven-development**
+3. **不要跳过验证步骤** —— 它们才是关键所在
+4. **有选择地加载 skill** —— 更多上下文并不总是更好
+5. **使用 agent 进行审查** —— 不同视角能发现不同问题
